@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Institution, User } from '../types';
-import { ShieldCheck, QrCode, Link, Copy } from 'lucide-react';
+import { ShieldCheck, QrCode, Link, Copy, Check } from 'lucide-react';
 import UnifiedSignatureField from './UnifiedSignatureField';
 
 interface ReportSignatureProps {
@@ -32,6 +32,7 @@ export default function ReportSignature({
 
   const [localRectorSig, setLocalRectorSig] = useState<string | null>(rectorSignature || null);
   const [localFocalSig, setLocalFocalSig] = useState<string | null>(focalPointSignature || null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const today = new Date().toLocaleDateString('pt-PT', {
     day: '2-digit',
@@ -106,14 +107,30 @@ export default function ReportSignature({
                   </div>
                 </div>
                 <button 
+                  type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText("https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app");
-                    alert("Link de verificação copiado para a área de transferência!");
+                    const sharedUrl = "https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app";
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(sharedUrl);
+                    }
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2500);
                   }}
-                  className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
-                  title="Copiar Link Partilhado"
+                  className={`p-1.5 rounded transition-all cursor-pointer flex items-center gap-1 text-xs font-bold ${
+                    copiedLink 
+                      ? 'bg-emerald-50 text-emerald-600' 
+                      : 'hover:bg-slate-100 text-slate-400 hover:text-blue-600'
+                  }`}
+                  title={copiedLink ? "Link Copiado!" : "Copiar Link Partilhado"}
                 >
-                  <Copy size={14} />
+                  {copiedLink ? (
+                    <>
+                      <Check size={14} className="text-emerald-600 animate-in zoom-in-75 duration-200" />
+                      <span className="text-[10px] text-emerald-600">Copiado</span>
+                    </>
+                  ) : (
+                    <Copy size={14} />
+                  )}
                 </button>
               </div>
               <p className="mt-2">A integridade deste documento pode ser verificada através do portal oficial do Ministério da Ciência, Tecnologia e Ensino Superior.</p>

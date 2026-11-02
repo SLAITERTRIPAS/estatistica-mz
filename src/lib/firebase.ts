@@ -15,6 +15,53 @@ enableIndexedDbPersistence(db).catch((err) => {
 
 export const auth = getAuth(app);
 
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
 // Save or update an account in Firestore for persistent cloud-backed login
 export async function saveAccountToFirestore(email: string, password: string, user: any) {
   try {
@@ -26,7 +73,7 @@ export async function saveAccountToFirestore(email: string, password: string, us
     });
     console.log(`Account ${email} saved to Firestore successfully.`);
   } catch (error) {
-    console.error(`Error saving account ${email} to Firestore:`, error);
+    handleFirestoreError(error, OperationType.WRITE, 'registered_accounts');
   }
 }
 
@@ -37,7 +84,7 @@ export async function deleteAccountFromFirestore(email: string) {
     await deleteDoc(docRef);
     console.log(`Account ${email} deleted from Firestore successfully.`);
   } catch (error) {
-    console.error(`Error deleting account ${email} from Firestore:`, error);
+    handleFirestoreError(error, OperationType.DELETE, 'registered_accounts');
   }
 }
 
@@ -88,7 +135,7 @@ export async function syncAccountsWithFirestore() {
       }
     }
   } catch (error) {
-    console.error('Error syncing accounts with Firestore:', error);
+    handleFirestoreError(error, OperationType.LIST, 'registered_accounts');
   }
 }
 

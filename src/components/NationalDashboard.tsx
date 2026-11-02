@@ -148,6 +148,35 @@ export default function NationalDashboard({
     alert(`Estado da conta atualizado com êxito! O administrador foi afectado ao nível correcto.`);
   };
 
+  const handleActivateAllPending = () => {
+    const saved = localStorage.getItem('stat_registered_accounts');
+    const existing = saved ? JSON.parse(saved) : [];
+    
+    const updated = existing.map((acc: any) => {
+      if (acc.user.accountStatus === 'pending' || acc.user.accountStatus === 'test') {
+        return {
+          ...acc,
+          user: {
+            ...acc.user,
+            accountStatus: 'active',
+            affectedByNational: true
+          }
+        };
+      }
+      return acc;
+    });
+
+    localStorage.setItem('stat_registered_accounts', JSON.stringify(updated));
+    
+    // Sync all updated users to Firestore
+    updated.forEach((acc: any) => {
+      saveAccountToFirestore(acc.email, acc.password, acc.user);
+    });
+
+    setRegisteredAccounts(updated);
+    alert("Todos os usuários pendentes/teste foram ativados com êxito.");
+  };
+
   const handleDownloadPDF = async () => {
     const doc = new jsPDF({
       orientation: 'landscape',
@@ -1241,6 +1270,15 @@ export default function NationalDashboard({
                 <Users className="h-4 w-4" /> 
                 {showNewAdminForm ? 'Voltar à Lista' : 'Novo Administrador'}
               </button>
+              {!showNewAdminForm && (
+                <button
+                  onClick={handleActivateAllPending}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 w-full sm:w-auto justify-center cursor-pointer shadow-sm"
+                >
+                  <ShieldCheck className="h-4 w-4" /> 
+                  Aprovar Todos (Teste/Pendentes)
+                </button>
+              )}
               {!showNewAdminForm && (
                 <div className="relative w-full sm:w-48">
                   <input

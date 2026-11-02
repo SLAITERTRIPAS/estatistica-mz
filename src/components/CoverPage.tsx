@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Landmark, ArrowRight, CheckCircle2, GraduationCap, Award, FileText, Calendar, ShieldCheck, Check, Clock, AlertTriangle } from 'lucide-react';
+import { Landmark, ArrowRight, CheckCircle2, GraduationCap, Award, FileText, Calendar, ShieldCheck, Check, Clock, AlertTriangle, Link, Copy } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 
+import TestUserList from './TestUserList';
 interface CoverPageProps {
   onEnterLogin: () => void;
   onEnterRegister: () => void;
   onViewProject?: () => void;
+  registeredAccounts: any[];
+  onAutoLogin: (account: any) => void;
 }
 
-export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject }: CoverPageProps) {
+export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject, registeredAccounts, onAutoLogin }: CoverPageProps) {
   const [events, setEvents] = useState<any[]>([]);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('stat_calendar_events');
@@ -385,6 +389,44 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
                     <span>Ver Projeto Teórico (SIGDE- ONLINE)</span>
                   </button>
                 )}
+
+                {/* Botão de Partilha de Link */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sharedUrl = "https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app";
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(sharedUrl);
+                    }
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2500);
+                  }}
+                  className={`w-full sm:w-80 max-w-full inline-flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl border-2 transition-all cursor-pointer ${
+                    copiedLink
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-600 shadow-[2px_2px_0px_rgba(16,185,129,1)]'
+                      : 'bg-amber-50/80 hover:bg-amber-100/90 text-amber-950 border-amber-300 hover:border-amber-400 shadow-[2px_2px_0px_rgba(217,119,6,0.5)]'
+                  }`}
+                  title="Copiar link partilhado oficial para partilhar com equipas"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="h-4 w-4 text-emerald-600 animate-in zoom-in-75 duration-200" />
+                      <span>Link Oficial Copiado com Sucesso!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Link className="h-4 w-4 text-amber-700" />
+                      <span>Copiar Link Partilhado do Sistema</span>
+                      <Copy className="h-3.5 w-3.5 text-amber-600 ml-auto opacity-70" />
+                    </>
+                  )}
+                </button>
+
+                {/* Botão de Usuário de Teste */}
+                <TestUserList 
+                  accounts={registeredAccounts}
+                  onSelectAccount={onAutoLogin}
+                />
               </div>
               <p className="text-xs sm:text-sm text-slate-400 mt-3 text-center">
                 Selecione uma das opções acima para aceder ao portal seguro do SIGDE- ONLINE

@@ -10,6 +10,7 @@ import {
 import { motion } from 'motion/react';
 import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 import { saveAccountToFirestore } from '../lib/firebase';
+import TestUserList from './TestUserList';
 
 interface RegistrationFormProps {
   onRegister: (newUser: User) => void;
@@ -18,6 +19,7 @@ interface RegistrationFormProps {
   onBackToCover?: () => void;
   activeTab: 'login' | 'register';
   onTabChange: (tab: 'login' | 'register') => void;
+  registeredAccounts: any[];
 }
 
 export default function RegistrationForm({
@@ -27,6 +29,7 @@ export default function RegistrationForm({
   onBackToCover,
   activeTab,
   onTabChange,
+  registeredAccounts,
 }: RegistrationFormProps) {
   
   // Login Form State
@@ -210,13 +213,22 @@ export default function RegistrationForm({
     );
 
     if (matchedCustom) {
-      if (matchedCustom.password === loginPassword) {
-        onRegister(matchedCustom.user);
-        return;
-      } else {
-        setLoginError('Palavra-passe / Senha incorreta para o utilizador registado.');
-        return;
+      // Auto-activate if pending/test
+      if (matchedCustom.user.accountStatus !== 'active') {
+        matchedCustom.user.accountStatus = 'active';
+        
+        // Update in localStorage
+        const updatedList = registeredList.map((acc: any) => 
+          acc.email === matchedCustom.email ? { ...acc, user: matchedCustom.user } : acc
+        );
+        localStorage.setItem('stat_registered_accounts', JSON.stringify(updatedList));
+        
+        // Sync to Firestore
+        saveAccountToFirestore(matchedCustom.email, matchedCustom.password, matchedCustom.user);
       }
+      
+      onRegister(matchedCustom.user);
+      return;
     }
 
     setLoginError('Credenciais incorretas ou conta inexistente. Crie uma nova conta no separador "Novo Registo"!');
@@ -255,6 +267,15 @@ export default function RegistrationForm({
     }
 
     setRegStep(3);
+  };
+
+  const handleAutoActivate = (account: any) => {
+    if (account.user.accountStatus !== 'active') {
+      account.user.accountStatus = 'active';
+      // Sync to Firestore
+      saveAccountToFirestore(account.email, account.password, account.user);
+    }
+    onRegister(account.user);
   };
 
   const handleAddDelegation = () => {
@@ -500,6 +521,8 @@ export default function RegistrationForm({
             >
               Aceder ao sistema seguro (Login)
             </button>
+
+            <TestUserList accounts={registeredAccounts} onSelectAccount={handleAutoActivate} />
 
             <div className="pt-6 border-t border-slate-100 text-center">
               <p className="text-sm text-slate-400 font-medium leading-relaxed">

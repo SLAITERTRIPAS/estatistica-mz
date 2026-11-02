@@ -3,14 +3,17 @@ import { motion } from 'motion/react';
 import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 import { User, Institution } from '../types';
 
+import TestUserList from './TestUserList';
+
 interface WelcomeScreenProps {
   user: User;
   institutions: Institution[];
   year: number;
   onComplete: () => void;
+  registeredAccounts: any[];
 }
 
-export default function WelcomeScreen({ user, institutions, year, onComplete }: WelcomeScreenProps) {
+export default function WelcomeScreen({ user, institutions, year, onComplete, registeredAccounts }: WelcomeScreenProps) {
   const [progress, setProgress] = useState(0);
   const onCompleteRef = useRef(onComplete);
 
@@ -153,6 +156,9 @@ export default function WelcomeScreen({ user, institutions, year, onComplete }: 
             Perfil Homologado: {getRoleBadgeLabel()}
           </motion.div>
         </div>
+
+        {/* Test User List */}
+        <TestUserList accounts={registeredAccounts} onSelectAccount={() => {}} />
 
         {/* Progress Bar Container */}
         <motion.div 

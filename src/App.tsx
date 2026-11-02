@@ -27,7 +27,7 @@ import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { 
   Building2, LogOut, FileText, Database, Activity, LayoutDashboard,
-  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Maximize2, Minimize2, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy
+  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Maximize2, Minimize2, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -119,6 +119,7 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [headerNotification, setHeaderNotification] = useState<string | null>(null);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [registeredAccounts, setRegisteredAccounts] = useState<any[]>([]);
 
   const userBranding = useMemo(() => {
     return resolveUserHeaderBranding(currentUser, institutions);
@@ -229,6 +230,7 @@ export default function App() {
   };
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [copiedSharedLink, setCopiedSharedLink] = useState(false);
 
   const handleCloseSystem = () => {
     setShowLogoutConfirm(true);
@@ -436,6 +438,30 @@ export default function App() {
       unsubEvents();
       unsubMsgs();
     };
+  }, []);
+
+  // Load registered users from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('stat_registered_accounts');
+    if (saved) {
+      try {
+        setRegisteredAccounts(JSON.parse(saved));
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      // Seed test users if none exist
+      const testUsers = [
+        { user: { id: 'test-reitor', name: 'Reitor Teste', email: 'reitor.ies@sigde.gov.mz', role: 'OrgaoMaximoIES', accountStatus: 'active', institutionName: 'IES Teste' } },
+        { user: { id: 'test-focal', name: 'Focal Point Teste', email: 'focalpoint.ies@sigde.gov.mz', role: 'FocalPoint', accountStatus: 'active', institutionName: 'IES Teste' } },
+        { user: { id: 'test-prov', name: 'Provincial Teste', email: 'provincial.gaza@sigde.gov.mz', role: 'provincial', province: 'Gaza', accountStatus: 'active' } },
+        { user: { id: 'test-reg', name: 'Regional Teste', email: 'regional.sul@sigde.gov.mz', role: 'regional', region: 'Sul', accountStatus: 'active' } },
+        { user: { id: 'test-min', name: 'Ministerial Teste', email: 'ministerial.dnes@sigde.gov.mz', role: 'Ministerial', accountStatus: 'active' } },
+        { user: { id: 'test-nac', name: 'Nacional Teste', email: 'nacional.mec@sigde.gov.mz', role: 'nacional', accountStatus: 'active' } },
+      ];
+      localStorage.setItem('stat_registered_accounts', JSON.stringify(testUsers));
+      setRegisteredAccounts(testUsers);
+    }
   }, []);
 
   // Load state from LocalStorage on mount (only for current user session)
@@ -1035,6 +1061,7 @@ export default function App() {
         institutions={institutions} 
         year={chosenWorkYear}
         onComplete={() => setShowWelcomeScreen(false)} 
+        registeredAccounts={registeredAccounts}
       />
     );
   }
@@ -1178,14 +1205,32 @@ export default function App() {
               <div className="flex items-center gap-2 border border-[#1e1e4a] rounded-xl p-1.5 bg-[#07071e] shadow-inner">
                 {/* 0. Link Partilhado do Sistema */}
                 <button
+                  type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText("https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app");
-                    alert("Link partilhado do SIGDE-ONLINE copiado!");
+                    const sharedUrl = "https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app";
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(sharedUrl);
+                    }
+                    setCopiedSharedLink(true);
+                    showHeaderToast("🔗 Link de partilha do SIGDE-ONLINE copiado com sucesso!");
+                    setTimeout(() => setCopiedSharedLink(false), 2500);
                   }}
-                  className="p-1.5 hover:bg-[#1e1e4a] rounded-lg transition-all cursor-pointer group/link text-[#fec107] hover:scale-110 active:scale-95"
-                  title="Copiar Link Partilhado do Sistema"
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer group/link hover:scale-110 active:scale-95 flex items-center gap-1.5 ${
+                    copiedSharedLink 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
+                      : 'hover:bg-[#1e1e4a] text-[#fec107]'
+                  }`}
+                  title={copiedSharedLink ? "Link Partilhado Copiado!" : "Copiar Link Partilhado do Sistema"}
+                  aria-label="Copiar Link Partilhado do Sistema"
                 >
-                  <Link size={17} className="group-hover/link:rotate-12 transition-transform" />
+                  {copiedSharedLink ? (
+                    <Check size={17} className="text-emerald-400 animate-in zoom-in-75 duration-200" />
+                  ) : (
+                    <Link size={17} className="group-hover/link:rotate-12 transition-transform" />
+                  )}
+                  <span className="hidden xl:inline text-[10px] font-black uppercase tracking-wider">
+                    {copiedSharedLink ? "Copiado!" : "Partilhar"}
+                  </span>
                 </button>
 
                 {/* 1. Sincronização e Atualização */}
@@ -1310,6 +1355,13 @@ export default function App() {
               onViewProject={() => {
                 setViewProjectAsGuest(true);
               }}
+              registeredAccounts={registeredAccounts}
+              onAutoLogin={(account) => {
+                setCurrentUser(account.user);
+                localStorage.setItem('stat_current_user', JSON.stringify(account.user));
+                setActiveTab('workspace');
+                setStarted(true);
+              }}
             />
           ) : (
             <RegistrationForm 
@@ -1325,6 +1377,7 @@ export default function App() {
               }}
               activeTab={unauthPage === 'login' ? 'login' : 'register'}
               onTabChange={(tab) => setUnauthPage(tab)}
+              registeredAccounts={registeredAccounts}
             />
           )}
         </main>
