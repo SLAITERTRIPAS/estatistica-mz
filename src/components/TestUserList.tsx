@@ -8,7 +8,23 @@ interface TestUserListProps {
 
 export default function TestUserList({ accounts, onSelectAccount }: TestUserListProps) {
   const [isOpen, setIsOpen] = useState(false);
+  console.log('DEBUG: TestUserList rendering. Accounts received:', accounts ? accounts.length : 'null');
   
+  const hierarchy = ['Nacional / Ministerial', 'Regional', 'Provincial', 'Institucional / IES'];
+  
+  const groupedUsers = accounts.reduce((acc, curr) => {
+    const role = curr.user?.role;
+    let level = 'Outros';
+    if (['Ministerial', 'central', 'nacional', 'sistema'].includes(role)) level = 'Nacional / Ministerial';
+    else if (['regional', 'RepresentanteRegional'].includes(role)) level = 'Regional';
+    else if (['provincial', 'RepresentanteProvincial'].includes(role)) level = 'Provincial';
+    else if (['OrgaoMaximoIES', 'FocalPoint', 'ies', 'ies_interno'].includes(role)) level = 'Institucional / IES';
+    
+    if (!acc[level]) acc[level] = [];
+    acc[level].push(curr);
+    return acc;
+  }, {} as Record<string, any[]>);
+
   if (accounts.length === 0) return null;
 
   return (
@@ -24,19 +40,28 @@ export default function TestUserList({ accounts, onSelectAccount }: TestUserList
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-2 bg-white border-2 border-slate-900 rounded-xl shadow-2xl max-h-96 overflow-y-auto custom-scrollbar p-2">
-          {accounts.map((acc, idx) => (
-            <div 
-              key={idx} 
-              onClick={() => {
-                onSelectAccount(acc);
-                setIsOpen(false);
-              }}
-              className="p-2 hover:bg-emerald-50 cursor-pointer rounded-lg border border-transparent hover:border-emerald-200 transition-all flex flex-col"
-            >
-              <p className="text-xs font-black text-slate-900">{acc.user.name}</p>
-              <p className="text-[10px] text-slate-500 uppercase font-mono">{acc.user.role}</p>
-            </div>
-          ))}
+          {hierarchy.map(level => {
+            const users = groupedUsers[level];
+            if (!users || users.length === 0) return null;
+            return (
+              <div key={level} className="mb-3">
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1 px-2 pb-1 border-b border-slate-100">{level}</h4>
+                {users.map((acc, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={() => {
+                      onSelectAccount(acc);
+                      setIsOpen(false);
+                    }}
+                    className="p-2 hover:bg-emerald-50 cursor-pointer rounded-lg border border-transparent hover:border-emerald-200 transition-all flex flex-col"
+                  >
+                    <p className="text-xs font-black text-slate-900">{acc.user.name}</p>
+                    <p className="text-[10px] text-slate-500 uppercase font-mono">{acc.user.role}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

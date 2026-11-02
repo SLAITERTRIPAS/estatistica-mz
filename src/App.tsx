@@ -442,15 +442,7 @@ export default function App() {
 
   // Load registered users from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('stat_registered_accounts');
-    if (saved) {
-      try {
-        setRegisteredAccounts(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      // Seed test users if none exist
+      // Always seed/reset test users to ensure they are present for the user
       const testUsers = [
         { user: { id: 'test-reitor', name: 'Reitor Teste', email: 'reitor.ies@sigde.gov.mz', role: 'OrgaoMaximoIES', accountStatus: 'active', institutionName: 'IES Teste' } },
         { user: { id: 'test-focal', name: 'Focal Point Teste', email: 'focalpoint.ies@sigde.gov.mz', role: 'FocalPoint', accountStatus: 'active', institutionName: 'IES Teste' } },
@@ -459,9 +451,27 @@ export default function App() {
         { user: { id: 'test-min', name: 'Ministerial Teste', email: 'ministerial.dnes@sigde.gov.mz', role: 'Ministerial', accountStatus: 'active' } },
         { user: { id: 'test-nac', name: 'Nacional Teste', email: 'nacional.mec@sigde.gov.mz', role: 'nacional', accountStatus: 'active' } },
       ];
-      localStorage.setItem('stat_registered_accounts', JSON.stringify(testUsers));
-      setRegisteredAccounts(testUsers);
-    }
+      
+      const saved = localStorage.getItem('stat_registered_accounts');
+      let currentAccounts = [];
+      if (saved) {
+        try {
+          currentAccounts = JSON.parse(saved);
+        } catch (e) {
+          console.error('DEBUG: Error parsing stat_registered_accounts', e);
+        }
+      }
+      
+      // Merge test users ensuring they exist
+      const mergedAccounts = [...currentAccounts];
+      testUsers.forEach(tUser => {
+          if (!mergedAccounts.find(a => a.user.id === tUser.user.id)) {
+              mergedAccounts.push(tUser);
+          }
+      });
+      
+      localStorage.setItem('stat_registered_accounts', JSON.stringify(mergedAccounts));
+      setRegisteredAccounts(mergedAccounts);
   }, []);
 
   // Load state from LocalStorage on mount (only for current user session)
@@ -1087,13 +1097,12 @@ export default function App() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 title="Portal Oficial SIGDE - Moçambique"
-                className="w-13 h-13 sm:w-14 sm:h-14 shrink-0 bg-white/95 border-2 border-[#fec107]/70 rounded-xl flex items-center justify-center overflow-hidden p-1 shadow-md hover:border-[#fec107] hover:scale-105 transition-all cursor-pointer group"
+                className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 bg-white/95 border-2 border-[#fec107]/70 rounded-xl flex items-center justify-center overflow-hidden p-1 shadow-md hover:border-[#fec107] hover:scale-105 transition-all cursor-pointer group"
               >
                 <img 
                   src={SYSTEM_LOGO} 
                   alt="Logotipo do Sistema SIGDE" 
-                  className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] group-hover:scale-105 transition-transform"
-                  style={{ mixBlendMode: 'multiply' }}
+                  className="w-full h-full object-contain [image-rendering:high-quality] group-hover:scale-105 transition-transform"
                 />
               </a>
               <div className="flex flex-col">
