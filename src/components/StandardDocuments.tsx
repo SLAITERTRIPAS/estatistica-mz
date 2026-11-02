@@ -82,14 +82,49 @@ export default function StandardDocuments() {
       link.click();
       document.body.removeChild(link);
     } else {
-      // Create a mock original file matching the name which download succeeds with
-      const dummyContent = `MEC Moçambique - Modelo Oficial ${doc.category}\nDocumento Original: ${doc.title}\nID do Sistema: ${doc.id}\nData de Emissão: ${doc.lastUpdated}`;
-      const blob = new Blob([dummyContent], { type: 'text/plain' });
+      // Create a more realistic official file content
+      let content = "";
+      let type = "text/plain";
+      let extension = "txt";
+
+      if (doc.id === 'doc-002') {
+        // Excel Model - Create a CSV structure
+        content = "ID_ESTUDANTE,NOME_COMPLETO,GENERO,NIVEL_ACADEMICO,REGIME,ANO_INGRESSO,RESULTADO_FINAL\n" +
+                  "001,Exemplo de Teste,M,Licenciatura,Integral,2026,Aprovado\n" +
+                  "002,Maria Moçambique,F,Mestrado,Parcial,2025,Pendente";
+        type = "text/csv";
+        extension = "csv";
+      } else if (doc.id === 'doc-001') {
+        // Manual
+        content = `MINISTÉRIO DA CIÊNCIA, TECNOLOGIA E ENSINO SUPERIOR (MCTES)\n` +
+                  `DIREÇÃO NACIONAL DE ENSINO SUPERIOR\n\n` +
+                  `DOCUMENTO: ${doc.title}\n` +
+                  `VERSÃO: 2026.1\n` +
+                  `DATA: ${doc.lastUpdated}\n\n` +
+                  `CONTEÚDO:\n` +
+                  `1. Introdução aos Indicadores Estatísticos\n` +
+                  `2. Metodologia de Recolha de Dados\n` +
+                  `3. Fórmulas de Cálculo (Graduação, Retenção, Abandono)\n` +
+                  `4. Normas de Submissão via SIGDE- ONLINE\n\n` +
+                  `Este documento é propriedade do Estado de Moçambique.`;
+        extension = "pdf"; // Keep PDF extension as requested even if content is text for the demo
+      } else {
+        // Others
+        content = `REPÚBLICA DE MOÇAMBIQUE\n` +
+                  `SIGDE - SISTEMA INTEGRADO DE GESTÃO DE DADOS ESTATÍSTICOS\n\n` +
+                  `MODELO OPERACIONAL: ${doc.title}\n` +
+                  `ID: ${doc.id}\n` +
+                  `DATA DE EMISSÃO: ${doc.lastUpdated}\n\n` +
+                  `INSTRUÇÕES:\n` +
+                  `Preencha todos os campos obrigatórios marcados com (*). A veracidade dos dados é da responsabilidade da reitoria da instituição.`;
+        extension = doc.title.includes('Ficha') ? 'docx' : 'pdf';
+      }
+
+      const blob = new Blob([content], { type });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      const ext = doc.title.includes('Excel') ? 'xlsx' : doc.title.includes('Manual') ? 'pdf' : 'docx';
       link.href = url;
-      link.download = `${doc.title.toLowerCase().replace(/\s+/g, '_')}_oficial.${ext}`;
+      link.download = `${doc.title.toLowerCase().replace(/\s+/g, '_')}_oficial.${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

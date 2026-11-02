@@ -53,10 +53,10 @@ export default function TestUserList({ accounts, onSelectAccount }: TestUserList
                       onSelectAccount(acc);
                       setIsOpen(false);
                     }}
-                    className="p-2 hover:bg-emerald-50 cursor-pointer rounded-lg border border-transparent hover:border-emerald-200 transition-all flex flex-col"
+                    className="p-3 hover:bg-emerald-50 cursor-pointer rounded-lg border border-transparent hover:border-emerald-200 transition-all flex flex-col gap-0.5"
                   >
-                    <p className="text-xs font-black text-slate-900">{acc.user.name}</p>
-                    <p className="text-[10px] text-slate-500 uppercase font-mono">{acc.user.role}</p>
+                    <p className="text-[13px] font-black text-slate-900 leading-tight">{acc.user.name}</p>
+                    <p className="text-[11px] text-slate-500 uppercase font-mono font-bold tracking-tight">{acc.user.role}</p>
                   </div>
                 ))}
               </div>

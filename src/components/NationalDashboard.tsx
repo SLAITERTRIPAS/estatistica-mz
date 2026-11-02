@@ -208,7 +208,7 @@ export default function NationalDashboard({
     try {
       // 1. Add Logo with High Quality
       const logoBase64 = await getBase64ImageFromURL(MOZAMBIQUE_EMBLEM);
-      doc.addImage(logoBase64, 'PNG', pageWidth / 2 - 21, 10, 42, 31);
+      doc.addImage(logoBase64, 'PNG', pageWidth / 2 - 16.8, 10, 33.6, 24.8);
     } catch (e) {
       console.warn('Logo could not be loaded into PDF', e);
     }
@@ -1011,7 +1011,7 @@ export default function NationalDashboard({
                 <img 
                   src={MOZAMBIQUE_EMBLEM} 
                   alt="Emblema de Moçambique" 
-                  className="w-28 aspect-[238/180] object-contain mb-1 mix-blend-multiply" 
+                  className="w-[4.2rem] aspect-[238/180] object-contain mb-1 mix-blend-multiply [image-rendering:high-quality]" 
                 />
                 <div className="space-y-1">
                   <h1 className="text-base md:text-lg font-black text-slate-900 uppercase tracking-[0.15em] leading-tight">
@@ -1903,7 +1903,7 @@ export default function NationalDashboard({
                      <div className="flex flex-col md:flex-row items-center gap-5 border-b border-slate-200 pb-4 mb-2">
                         <div className="w-16 h-16 bg-white border border-slate-950 rounded-xl flex items-center justify-center p-1.5 shrink-0 shadow-xs">
                            {selectedIesDetails.inst.logoUrl ? (
-                              <img src={selectedIesDetails.inst.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                              <img src={selectedIesDetails.inst.logoUrl} alt="Logo" className="w-full h-full object-contain mix-blend-multiply" style={{ mixBlendMode: 'multiply' }} />
                            ) : (
                               <Building2 className="h-8 w-8 text-slate-300" />
                            )}

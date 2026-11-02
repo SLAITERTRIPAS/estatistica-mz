@@ -4,6 +4,7 @@ import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 import { User, Institution } from '../types';
 
 import TestUserList from './TestUserList';
+import FullscreenImageModal from './FullscreenImageModal';
 
 interface WelcomeScreenProps {
   user: User;
@@ -71,11 +72,18 @@ export default function WelcomeScreen({ user, institutions, year, onComplete, re
     return () => clearInterval(intervalId);
   }, []);
 
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+
   return (
     <div 
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 text-white overflow-y-auto p-4 sm:p-6 select-none"
       id="welcome-portal-overlay"
     >
+      <FullscreenImageModal 
+        isOpen={!!fullscreenImage} 
+        onClose={() => setFullscreenImage(null)} 
+        imageSrc={fullscreenImage} 
+      />
       <style>{`
         @keyframes rgbFlow {
           0% { background-position: 0% 50%; }
@@ -103,28 +111,38 @@ export default function WelcomeScreen({ user, institutions, year, onComplete, re
       >
         {/* State/National Emblem Header */}
         <motion.div 
-          className="flex flex-col items-center space-y-3"
+          className="flex flex-col items-center space-y-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <div className="rounded-2xl p-2 w-32 h-32 flex items-center justify-center bg-transparent">
-            <img 
-              src={MOZAMBIQUE_EMBLEM} 
-              alt="República de Moçambique" 
-              className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
-              style={{ mixBlendMode: 'multiply' }}
-            />
+          <div className="flex items-center justify-center">
+            {/* National Emblem - Centered, transparent background */}
+            <div 
+              className="w-[7.2rem] h-[7.2rem] flex items-center justify-center bg-transparent cursor-pointer hover:scale-110 transition-transform active:scale-95"
+              onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
+              title="Clique para ver em tela cheia"
+            >
+              <img 
+                src={MOZAMBIQUE_EMBLEM} 
+                alt="República de Moçambique" 
+                className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] [image-rendering:high-quality]" 
+                style={{ mixBlendMode: 'multiply' }}
+              />
+            </div>
           </div>
-          <p className="text-xs text-emerald-400 font-black tracking-[0.25em] uppercase text-center mt-2">
-            REPÚBLICA DE MOÇAMBIQUE
-          </p>
-          <p className="text-xs text-slate-300 font-black tracking-[0.1em] uppercase text-center leading-none">
-            MINISTÉRIO DE EDUCAÇÃO E CULTURA
-          </p>
-          <p className="text-xs text-slate-400 font-bold tracking-[0.05em] uppercase text-center leading-none mt-1">
-            DIREÇÃO NACIONAL DE ENSINO SUPERIOR (DNES)
-          </p>
+
+          <div className="text-center">
+            <p className="text-xs text-emerald-400 font-black tracking-[0.25em] uppercase text-center">
+              REPÚBLICA DE MOÇAMBIQUE
+            </p>
+            <p className="text-xs text-slate-300 font-black tracking-[0.1em] uppercase text-center leading-none mt-1">
+              MINISTÉRIO DE EDUCAÇÃO E CULTURA
+            </p>
+            <p className="text-xs text-slate-400 font-bold tracking-[0.05em] uppercase text-center leading-none mt-1">
+              DIREÇÃO NACIONAL DE ENSINO SUPERIOR (DNES)
+            </p>
+          </div>
         </motion.div>
 
         {/* Welcome greeting */}

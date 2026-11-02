@@ -3,7 +3,9 @@ import { Landmark, ArrowRight, CheckCircle2, GraduationCap, Award, FileText, Cal
 import { motion } from 'motion/react';
 import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 
+import FullscreenImageModal from './FullscreenImageModal';
 import TestUserList from './TestUserList';
+
 interface CoverPageProps {
   onEnterLogin: () => void;
   onEnterRegister: () => void;
@@ -16,6 +18,7 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
   const [events, setEvents] = useState<any[]>([]);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('stat_calendar_events');
@@ -119,6 +122,11 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
     if (selectedEvent) {
       return (
         <div id="independent-event-page" className="min-h-[calc(100vh-80px)] w-full bg-[#f1f5f9] text-slate-800 p-4 sm:p-8 flex flex-col justify-center items-center">
+          <FullscreenImageModal 
+            isOpen={!!fullscreenImage} 
+            onClose={() => setFullscreenImage(null)} 
+            imageSrc={fullscreenImage} 
+          />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -141,7 +149,11 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
 
             {/* Ministry Brand Header */}
           <div className="text-center space-y-3 pt-4">
-              <div className="relative flex items-center justify-center w-16 h-16 mx-auto bg-transparent">
+              <div 
+                className="relative flex items-center justify-center w-[2.4rem] h-[2.4rem] mx-auto bg-transparent cursor-pointer hover:scale-110 transition-transform"
+                onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
+                title="Clique para ver em tela cheia"
+              >
                 <img 
                   src={MOZAMBIQUE_EMBLEM}
                   alt="Emblema de Moçambique" 
@@ -256,7 +268,11 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
 
   return (
     <div id="cover-outer-container" className="py-8 px-4 sm:px-8 lg:px-12 w-full min-h-[calc(100vh-80px)] flex flex-col justify-center max-w-7xl mx-auto">
-      
+      <FullscreenImageModal 
+        isOpen={!!fullscreenImage} 
+        onClose={() => setFullscreenImage(null)} 
+        imageSrc={fullscreenImage} 
+      />
       {/* High-Fidelity Cover Design centered */}
       <div className="w-full flex flex-col justify-center items-center py-6">
         <motion.div
@@ -271,11 +287,15 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
             <div className="flex flex-col items-center justify-center space-y-3">
               <div className="flex items-center justify-center mb-1">
                 {/* National Emblem - Centered and responsive, background completely removed */}
-                <div className="relative flex items-center justify-center w-36 h-36 sm:w-44 sm:h-44 bg-transparent">
+                <div 
+                  className="relative flex items-center justify-center w-[5.4rem] h-[5.4rem] sm:w-[6.6rem] sm:h-[6.6rem] bg-transparent cursor-pointer hover:scale-110 transition-transform"
+                  onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
+                  title="Clique para ver em tela cheia"
+                >
                   <img
                     src={MOZAMBIQUE_EMBLEM}
                     alt="Emblema da República de Moçambique"
-                    className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] select-none pointer-events-none"
+                    className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] select-none"
                     style={{ mixBlendMode: 'multiply' }}
                   />
                 </div>

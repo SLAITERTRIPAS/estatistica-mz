@@ -2098,11 +2098,12 @@ className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider tr
                       <div className="w-16 h-16 bg-white border-2 border-black rounded-xl flex items-center justify-center overflow-hidden p-1.5 shrink-0 shadow-sm">
                         {myInstitution.logoUrl ? (
                           <a href="/" title="Voltar ao início">
-                            <img 
-                              src={myInstitution.logoUrl} 
-                              alt={`${myInstitution.abbreviation || 'Logótipo'} Logo`} 
-                              className="w-full h-full object-contain"
-                            />
+                              <img 
+                                src={myInstitution.logoUrl} 
+                                alt={`${myInstitution.abbreviation || 'Logótipo'} Logo`} 
+                                className="w-full h-full object-contain mix-blend-multiply"
+                                style={{ mixBlendMode: 'multiply' }}
+                              />
                           </a>
                         ) : (
                           <GraduationCap className="h-8 w-8 text-slate-800" />

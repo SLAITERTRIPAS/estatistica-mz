@@ -21,13 +21,15 @@ import QuantumAICenter from './components/QuantumAICenter';
 import OverviewSection from './components/OverviewSection';
 import AIValidationAssistant from './components/AIValidationAssistant';
 import LogoCustomizerModal from './components/LogoCustomizerModal';
+import SystemSettings from './components/SystemSettings';
+import FullscreenImageModal from './components/FullscreenImageModal';
 import { resolveUserHeaderBranding } from './constants/institutionLogos';
 
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { 
   Building2, LogOut, FileText, Database, Activity, LayoutDashboard,
-  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Maximize2, Minimize2, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check
+  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -107,19 +109,20 @@ export default function App() {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [activeTab, setActiveTab] = useState<'workspace' | 'documents'>('workspace');
   const [unauthPage, setUnauthPage] = useState<'cover' | 'login' | 'register'>('cover');
-  const [sidebarTab, setSidebarTab] = useState<'visao_geral' | 'estatistica' | 'calendario' | 'mensagens' | 'assinatura' | 'resumo_ies' | 'relatorios' | 'gestao_usuarios' | 'gestao_pessoal' | 'projeto_teorico' | 'ia_quantica' | 'validacao_ia'>('estatistica');
+  const [sidebarTab, setSidebarTab] = useState<'visao_geral' | 'estatistica' | 'calendario' | 'mensagens' | 'assinatura' | 'resumo_ies' | 'relatorios' | 'gestao_usuarios' | 'gestao_pessoal' | 'projeto_teorico' | 'ia_quantica' | 'validacao_ia' | 'configuracoes'>('estatistica');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showWelcomeScreen, setShowWelcomeScreen] = useState<boolean>(false);
   const [started, setStarted] = useState(false);
   const [viewProjectAsGuest, setViewProjectAsGuest] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAppMinimized, setIsAppMinimized] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [headerNotification, setHeaderNotification] = useState<string | null>(null);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [systemLogoUrl, setSystemLogoUrl] = useState<string>(() => localStorage.getItem('stat_system_logo') || SYSTEM_LOGO);
   const [registeredAccounts, setRegisteredAccounts] = useState<any[]>([]);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   const userBranding = useMemo(() => {
     return resolveUserHeaderBranding(currentUser, institutions);
@@ -193,42 +196,6 @@ export default function App() {
     }
   };
 
-  const handleToggleFullscreen = () => {
-    try {
-      if (!document.fullscreenElement) {
-        const element = document.documentElement;
-        if (element.requestFullscreen) {
-          element.requestFullscreen().then(() => {
-            setIsFullscreen(true);
-            showHeaderToast("🖥️ Modo Tela Cheia / Maximizado ativado.");
-          }).catch((err) => {
-            console.error("Fullscreen error:", err);
-            // Fallback for environments that block FS (like some iframes)
-            setIsFullscreen(true);
-            showHeaderToast("🖥️ Maximizado (Simulação de Modo Janela).");
-          });
-        } else {
-          setIsFullscreen(true);
-          showHeaderToast("🖥️ Maximizado (Modo Janela).");
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().then(() => {
-            setIsFullscreen(false);
-            showHeaderToast("🖥️ Modo Tela Cheia desativado.");
-          }).catch(() => {
-            setIsFullscreen(false);
-          });
-        } else {
-          setIsFullscreen(false);
-        }
-      }
-    } catch (e) {
-      setIsFullscreen(!isFullscreen);
-      showHeaderToast("🖥️ Alternando modo de visualização.");
-    }
-  };
-
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [copiedSharedLink, setCopiedSharedLink] = useState(false);
 
@@ -238,16 +205,7 @@ export default function App() {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    
-    const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFsChange);
-
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener('fullscreenchange', handleFsChange);
-    };
+    return () => clearInterval(timer);
   }, []);
 
   const formatDate = (date: Date) => {
@@ -600,6 +558,12 @@ export default function App() {
     }
 
     showHeaderToast("✨ Logotipo personalizado atualizado com sucesso no cabeçalho!");
+  };
+
+  const handleUpdateSystemLogo = (newLogo: string) => {
+    setSystemLogoUrl(newLogo);
+    localStorage.setItem('stat_system_logo', newLogo);
+    showHeaderToast("✨ Logotipo do sistema atualizado com sucesso!");
   };
 
   // Send Submission to local Province
@@ -1078,6 +1042,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] text-slate-800 antialiased flex flex-col" id="app-root-layout">
+      <FullscreenImageModal 
+        isOpen={!!fullscreenImage} 
+        onClose={() => setFullscreenImage(null)} 
+        imageSrc={fullscreenImage} 
+      />
       
       {/* 1. Top Banner / Header exactly matching the layout */}
       {currentUser && started && chosenWorkYear && !showWelcomeScreen && (
@@ -1092,19 +1061,18 @@ export default function App() {
               >
                 <LayoutDashboard className="h-6 w-6" />
               </button>
-              <a 
-                href="https://sigde.gov.mz" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                title="Portal Oficial SIGDE - Moçambique"
-                className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 bg-white/95 border-2 border-[#fec107]/70 rounded-xl flex items-center justify-center overflow-hidden p-1 shadow-md hover:border-[#fec107] hover:scale-105 transition-all cursor-pointer group"
+              <button 
+                onClick={() => setFullscreenImage(systemLogoUrl)}
+                title="Portal Oficial SIGDE - Moçambique (Clique para ver logotipo completo)"
+                className="w-[3.6rem] h-[3.6rem] sm:w-[4.2rem] sm:h-[4.2rem] shrink-0 bg-transparent border-2 border-[#fec107]/70 rounded-2xl flex items-center justify-center overflow-hidden p-1 shadow-lg hover:border-[#fec107] hover:scale-105 transition-all cursor-pointer group"
               >
                 <img 
-                  src={SYSTEM_LOGO} 
+                  src={systemLogoUrl} 
                   alt="Logotipo do Sistema SIGDE" 
-                  className="w-full h-full object-contain [image-rendering:high-quality] group-hover:scale-105 transition-transform"
+                  className="w-full h-full object-contain [image-rendering:high-quality] group-hover:scale-110 group-hover:brightness-110 group-hover:contrast-110 transition-all duration-300 mix-blend-multiply"
+                  style={{ mixBlendMode: 'multiply' }}
                 />
-              </a>
+              </button>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#fec107] select-none whitespace-nowrap">
@@ -1128,12 +1096,12 @@ export default function App() {
                   type="button"
                   onClick={() => setIsLogoModalOpen(true)}
                   title="Clique para personalizar ou alterar o logotipo desta entidade/conta"
-                  className="w-11 h-11 sm:w-13 sm:h-13 bg-white rounded-xl border-2 border-[#fec107] flex items-center justify-center p-1 overflow-hidden shadow-md shrink-0 cursor-pointer hover:scale-105 active:scale-95 transition-all group/logo relative"
+                  className="w-[2.1rem] h-[2.1rem] sm:w-[2.4rem] sm:h-[2.4rem] bg-white rounded-xl border-2 border-[#fec107] flex items-center justify-center p-1 overflow-hidden shadow-md shrink-0 cursor-pointer hover:scale-105 active:scale-95 transition-all group/logo relative"
                 >
                   <img 
                     src={userBranding.logoUrl} 
                     alt={`Logotipo da Entidade - ${userBranding.entityName}`}
-                    className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)]"
+                    className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] group-hover:scale-110 group-hover:brightness-110 transition-all duration-300"
                     style={{ mixBlendMode: 'multiply' }}
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 rounded-xl flex items-center justify-center transition-opacity">
@@ -1270,16 +1238,6 @@ export default function App() {
                   aria-label="Minimizar"
                 >
                   <Minus className="h-5 w-5" />
-                </button>
-
-                {/* 4. Maximizar / Tela Cheia */}
-                <button 
-                  onClick={handleToggleFullscreen}
-                  title={isFullscreen ? "Sair do Modo Tela Cheia" : "Maximizar em Tela Cheia"}
-                  className="p-2 hover:bg-emerald-600 rounded-lg text-emerald-400 border border-emerald-500/50 bg-emerald-950/40 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
-                  aria-label="Maximizar"
-                >
-                  {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
                 </button>
 
                 {/* 5. Fechar Sessão */}
@@ -1439,9 +1397,9 @@ export default function App() {
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <button 
                       type="button"
-                      onClick={() => setIsLogoModalOpen(true)}
-                      title="Clique para personalizar o logotipo institucional"
-                      className="w-10 h-10 shrink-0 bg-white border border-[#fec107]/80 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer group relative"
+                      onClick={() => setFullscreenImage(userBranding.logoUrl)}
+                      title="Clique para ver o logotipo institucional completo"
+                      className="w-6 h-6 shrink-0 bg-transparent border border-[#fec107]/80 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer group relative"
                     >
                       <img 
                         src={userBranding.logoUrl} 
@@ -1475,7 +1433,7 @@ export default function App() {
                       setSidebarTab('visao_geral');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'visao_geral'
                         ? 'bg-[#1e1e4a] text-[#fec107] border-l-4 border-[#fec107] shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1493,7 +1451,7 @@ export default function App() {
                       setSidebarTab('validacao_ia');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-3'} py-2.5 text-[12px] font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'validacao_ia'
                         ? 'bg-[#1e1e4a] text-indigo-400 border-l-4 border-indigo-500 shadow-lg'
                         : 'text-indigo-400/80 hover:text-indigo-300 hover:bg-indigo-950/30 '
@@ -1513,14 +1471,31 @@ export default function App() {
                 </button>
 
                 {/* IA Quântica - Restricted to Administrador Geral Supremo */}
-                {currentUser.isOwner && currentUser.isProgrammer && (
+                {(currentUser.isOwner && currentUser.isProgrammer) && (
+                   <button
+                    onClick={() => {
+                      setSidebarTab('configuracoes');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-[12px] font-bold rounded-xl transition-all cursor-pointer ${
+                      sidebarTab === 'configuracoes'
+                        ? 'bg-[#1e1e4a] text-white border-l-4 border-emerald-500 shadow-lg'
+                        : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
+                    }`}
+                    title={isSidebarCollapsed ? "Configurações" : ""}
+                  >
+                    <Sparkles className={`h-4 w-4 shrink-0 ${sidebarTab === 'configuracoes' ? 'text-white' : 'text-slate-500'}`} />
+                    {!isSidebarCollapsed && <span>Configurações</span>}
+                  </button>
+                )}
+                {(currentUser.isOwner && currentUser.isProgrammer) && (
                   <button
                       onClick={() => {
                         setActiveTab('workspace');
                         setSidebarTab('ia_quantica');
                         setIsMobileMenuOpen(false);
                       }}
-                      className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                      className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-3'} py-2.5 text-[12px] font-bold rounded-xl transition-all cursor-pointer ${
                         sidebarTab === 'ia_quantica' && activeTab === 'workspace'
                           ? 'bg-[#07071e] text-emerald-400 border-l-4 border-emerald-500 shadow-lg'
                           : 'text-emerald-500/70 hover:text-emerald-400 hover:bg-emerald-950/30 '
@@ -1547,7 +1522,7 @@ export default function App() {
                       setSidebarTab('estatistica');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'estatistica'
                         ? 'bg-[#1e1e4a] text-blue-400 border-l-4 border-blue-500 shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1567,7 +1542,7 @@ export default function App() {
                       setSidebarTab('calendario');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'calendario'
                         ? 'bg-[#1e1e4a] text-slate-200 border-l-4 border-[#fec107] shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1586,7 +1561,7 @@ export default function App() {
                       handleOpenMessagesFromSidebar();
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'mensagens'
                         ? 'bg-[#1e1e4a] text-white border-l-4 border-white shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1614,7 +1589,7 @@ export default function App() {
                       setSidebarTab('assinatura');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'assinatura'
                         ? 'bg-[#1e1e4a] text-white border-l-4 border-white shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1632,7 +1607,7 @@ export default function App() {
                       setSidebarTab('resumo_ies');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-3 text-xs font-black tracking-tight rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-3 text-sm font-black tracking-tight rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'resumo_ies'
                         ? 'bg-[#1e1e4a] text-white border-l-4 border-white shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1667,7 +1642,7 @@ export default function App() {
                       setSidebarTab('gestao_usuarios');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'gestao_usuarios'
                         ? 'bg-[#1e1e4a] text-white border-l-4 border-[#fec107] shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1685,7 +1660,7 @@ export default function App() {
                       setSidebarTab('gestao_pessoal');
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 text-sm font-bold rounded-xl transition-all cursor-pointer ${
                       sidebarTab === 'gestao_pessoal'
                         ? 'bg-[#1e1e4a] text-[#fec107] border-l-4 border-[#fec107] shadow-lg'
                         : 'text-slate-400 hover:text-white hover:bg-[#1e1e4a]/50 '
@@ -1709,22 +1684,15 @@ export default function App() {
                 {activeTab === 'workspace' ? <FileText className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />} {!isSidebarCollapsed && (activeTab === 'workspace' ? 'Modelos Oficiais' : 'Voltar ao Sistema')}
               </button>
                 {!isSidebarCollapsed && (
-                  <div className="text-xs text-slate-500 leading-relaxed font-medium">
+                  <div className="text-[12px] text-slate-500 leading-relaxed font-medium">
+                    <span className="text-[#fec107] font-black block mb-1">Modelos Oficiais</span>
                     Moçambique Estatística 2026<br />
                     v1.4.2 SIGDE- ONLINE<br />
-                    <span className="text-xs font-bold block mt-1 animate-rgb tracking-widest uppercase">(Todos direitos reservados)</span>
+                    <span className="text-[10px] text-slate-400 block mt-1">PROP/desenvodor: fttripas@gmail.com</span>
+                    <span className="text-[11px] font-bold block mt-1 animate-rgb tracking-widest uppercase">(Todos direitos reservados)</span>
                   </div>
                 )}
                 
-                {/* Fullscreen Toggle for responsiveness/UX */}
-                <button 
-                  onClick={handleToggleFullscreen}
-                  className={`mt-3 w-full bg-[#07071e] border border-[#1e1e4a] text-slate-400 text-xs py-2 rounded-lg hover:text-white transition-colors uppercase font-black flex items-center justify-center shadow-inner ${isSidebarCollapsed ? '' : 'gap-2'}`}
-                  title={isSidebarCollapsed ? "Tela Cheia" : ""}
-                >
-                  <Maximize2 className="h-4 w-4" />
-                  {!isSidebarCollapsed && "Modo Tela Cheia"}
-                </button>
             </div>
           </aside>
 
@@ -2706,7 +2674,7 @@ export default function App() {
                             <img 
                               src={MOZAMBIQUE_EMBLEM} 
                               alt="Emblema Watermark" 
-                              className="w-[17rem] h-[17rem] object-contain mix-blend-multiply"
+                              className="w-[10.2rem] h-[10.2rem] object-contain mix-blend-multiply"
                             />
                           </div>
 
@@ -2716,7 +2684,7 @@ export default function App() {
                                 <img 
                                   src={MOZAMBIQUE_EMBLEM}
                                   alt="Emblema de Moçambique" 
-                                  className="w-14 h-14 mx-auto object-contain mix-blend-multiply"
+                                  className="w-[2.1rem] h-[2.1rem] mx-auto object-contain mix-blend-multiply"
                                 />
                               <div>
                                 <span className="text-xs tracking-widest font-bold text-slate-500 block">República de Moçambique</span>
@@ -3267,6 +3235,10 @@ export default function App() {
                     institutions={institutions}
                     onClose={() => setSidebarTab('visao_geral')}
                   />
+                )}
+
+                {sidebarTab === 'configuracoes' && (
+                  <SystemSettings currentLogo={systemLogoUrl} onUpdateLogo={handleUpdateSystemLogo} />
                 )}
               </div>
             )}

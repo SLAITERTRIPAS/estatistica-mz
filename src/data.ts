@@ -35,36 +35,36 @@ export const STANDARD_DOCUMENTS: StandardDocument[] = [
     id: 'doc-001',
     title: 'Manual de Indicadores da Estatística do Ensino Superior - Moçambique',
     category: 'Geral',
-    description: 'Instruções oficiais do MCTESTP, definição de termos e fórmulas matemáticas para cálculo de taxas de transição, género, docentes-estudantes, etc.',
-    fileSize: '2.8 MB',
-    lastUpdated: '12/03/2026',
+    description: 'Manual técnico oficial que estabelece as normas, conceitos e metodologias para a recolha de dados estatísticos. Inclui definições de indicadores chave (KPIs) como taxa de graduação, rácio docente/estudante e metodologias de cálculo para o relatório anual de estatística.',
+    fileSize: '3.4 MB',
+    lastUpdated: '01/01/2026',
     downloadUrl: '#'
   },
   {
     id: 'doc-002',
     title: 'Modelo Excel - Matrícula e Aproveitamento de Estudantes (SIGDE- ONLINE)',
     category: 'Estudantes',
-    description: 'Planilha contendo o layout moçambicano padronizado para importação de dados de alunos inscritos, aprovados, reprovados e desistências por curso.',
-    fileSize: '1.2 MB',
-    lastUpdated: '05/04/2026',
+    description: 'Estrutura de dados em formato Excel (.xlsx) configurada para importação massiva de dados. Contém campos obrigatórios para identificação de estudantes, regime de frequência, aproveitamento académico por semestre e estatísticas de desistência harmonizadas com o sistema nacional.',
+    fileSize: '1.5 MB',
+    lastUpdated: '15/02/2026',
     downloadUrl: '#'
   },
   {
     id: 'doc-003',
     title: 'Ficha de Inquérito de Corpo Docente e Investigadores',
     category: 'Docentes',
-    description: 'Documento padrão para reportar o nível do grau académico (Licenciatura, Mestrado, Doutoramento), regime laboral e carga horária letiva.',
-    fileSize: '950 KB',
-    lastUpdated: '18/04/2026',
+    description: 'Formulário oficial para o levantamento de dados biográficos e profissionais do pessoal docente. Inclui campos para grau académico, categoria profissional, regime de dedicação, áreas de investigação (CAF) e produtividade científica.',
+    fileSize: '820 KB',
+    lastUpdated: '10/01/2026',
     downloadUrl: '#'
   },
   {
     id: 'doc-004',
     title: 'Guião de Caracterização Física e Equipamentos Tecnológicos',
     category: 'Infraestrutura',
-    description: 'Instruções técnicas para auditar a capacidade física das salas de aulas, estado de laboratórios, bibliotecas e conectividade à Internet.',
-    fileSize: '1.4 MB',
-    lastUpdated: '22/04/2026',
+    description: 'Protocolo de avaliação física das Instituições de Ensino Superior. Detalha os critérios para medição de áreas úteis, capacidade instalada de laboratórios, bibliotecas e especificações técnicas de infraestrutura de TIC.',
+    fileSize: '2.1 MB',
+    lastUpdated: '20/01/2026',
     downloadUrl: '#'
   }
 ];

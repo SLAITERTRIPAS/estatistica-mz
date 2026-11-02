@@ -145,7 +145,7 @@ export default function IESSummaryView({ institutions, submissions, currentUser 
         <img 
           src={MOZAMBIQUE_EMBLEM} 
           alt="Emblema de Moçambique" 
-          className="w-40 aspect-[238/180] object-contain mix-blend-multiply" 
+          className="w-20 aspect-[238/180] object-contain mix-blend-multiply" 
         />
         <div className="space-y-1.5 text-center">
           <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-[0.2em] leading-tight">
@@ -161,7 +161,7 @@ export default function IESSummaryView({ institutions, submissions, currentUser 
             SISTEMA INTEGRADO DE GESTÃO DE DADOS ESTATÍSTICOS (SIGDE- ONLINE)
           </div>
         </div>
-        <div className="w-40 h-1 bg-[#009E60] rounded"></div>
+        <div className="w-32 h-1 bg-[#009E60] rounded"></div>
       </div>
 
       <div className="border-b-2 border-slate-950 pb-4 flex flex-col md:flex-row items-center justify-between gap-4">

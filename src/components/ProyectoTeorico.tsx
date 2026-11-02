@@ -134,8 +134,8 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
                       top: 50% !important; 
                       left: 50% !important; 
                       transform: translate(-50%, -50%) !important; 
-                      width: 520px !important;
-                      height: 520px !important;
+                      width: 416px !important;
+                      height: 416px !important;
                       max-width: 85% !important;
                       opacity: 0.22 !important; 
                       z-index: 0 !important; 
@@ -157,8 +157,8 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
                       top: 50% !important;
                       left: 50% !important;
                       transform: translate(-50%, -50%) !important;
-                      width: 480px !important;
-                      height: 480px !important;
+                      width: 384px !important;
+                      height: 384px !important;
                       max-width: 85% !important;
                       opacity: 0.22 !important;
                       pointer-events: none !important;
@@ -328,8 +328,8 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 520px !important;
-            height: 520px !important;
+            width: 416px !important;
+            height: 416px !important;
             max-width: 85% !important;
             opacity: 0.22 !important;
             z-index: 0 !important;
@@ -351,8 +351,8 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 480px !important;
-            height: 480px !important;
+            width: 384px !important;
+            height: 384px !important;
             max-width: 85% !important;
             opacity: 0.22 !important;
             pointer-events: none !important;
@@ -458,11 +458,11 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
         </div>
 
         {/* Content Viewer (Right) */}
-        <div className="lg:col-span-3 bg-white border-2 border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 relative min-h-[600px] overflow-hidden">
+        <div className="lg:col-span-3 bg-white border-2 border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 relative min-h-[600px] overflow-hidden group/watermark">
           
-          {/* Subtle logo background watermark */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none select-none">
-            <img src={SYSTEM_LOGO} alt="Logotipo do Sistema" className="w-full max-w-[750px] h-auto object-contain aspect-square object-contain mix-blend-multiply" />
+          {/* Subtle logo background watermark - becomes more visible on hover */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] group-hover/watermark:opacity-[0.15] transition-opacity duration-500 pointer-events-none select-none">
+            <img src={SYSTEM_LOGO} alt="Logotipo do Sistema" className="w-full max-w-[430px] h-auto object-contain aspect-square mix-blend-multiply" />
           </div>
 
           {/* Version Switcher */}

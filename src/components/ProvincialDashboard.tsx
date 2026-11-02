@@ -61,7 +61,7 @@ export default function ProvincialDashboard({
         <img 
           src={MOZAMBIQUE_EMBLEM} 
           alt="Emblema de Moçambique" 
-          className="w-34 aspect-[238/180] object-contain mb-2 mix-blend-multiply" 
+          className="w-[5.1rem] aspect-[238/180] object-contain mb-2 mix-blend-multiply" 
         />
         <div className="space-y-1">
           <h1 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-[0.15em] leading-tight">

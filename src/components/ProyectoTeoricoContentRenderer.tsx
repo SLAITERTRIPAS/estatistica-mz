@@ -39,7 +39,7 @@ const WatermarkPrintBg: React.FC = () => (
     <img 
       src={SYSTEM_LOGO} 
       alt="Logotipo do Sistema" 
-      className="w-full max-w-[670px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22]" 
+      className="w-full max-w-[536px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22]" 
       referrerPolicy="no-referrer" 
     />
   </div>
@@ -87,10 +87,10 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
           </div>
 
           {coverTab === 'capa' ? (
-            <div className="border-4 border-double border-slate-950 p-6 sm:p-12 rounded-2xl bg-white space-y-8 text-center max-w-2xl mx-auto shadow-md relative overflow-hidden">
-              {/* Subtle watermarked emblem in background */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
-                <img src={SYSTEM_LOGO} alt="" className="w-[34rem] h-[34rem] object-contain mix-blend-multiply" />
+            <div className="border-4 border-double border-slate-950 p-6 sm:p-12 rounded-2xl bg-white space-y-8 text-center max-w-2xl mx-auto shadow-md relative overflow-hidden group/capa-watermark">
+              {/* Subtle watermarked emblem in background - becomes more visible on hover */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover/capa-watermark:opacity-[0.12] transition-opacity duration-500 pointer-events-none select-none">
+                <img src={SYSTEM_LOGO} alt="" className="w-[24.5rem] h-[24.5rem] object-contain mix-blend-multiply" />
               </div>
 
               {/* Official Headings */}
@@ -98,7 +98,7 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
                 <img 
                   src={SYSTEM_LOGO} 
                   alt="Logotipo do Sistema" 
-                  className="w-28 h-28 object-contain mix-blend-multiply" 
+                  className="w-[5rem] h-[5rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" 
                   referrerPolicy="no-referrer"
                 />
                 <h1 className="text-xs uppercase font-black tracking-widest text-slate-950">
@@ -667,11 +667,11 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
             {/* Explicação Oficial do Novo Logotipo do Sistema */}
             <div className="mt-8 p-6 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden animate-fade-in no-print">
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <img src={SYSTEM_LOGO} alt="" className="w-48 h-44 object-contain" />
+                <img src={SYSTEM_LOGO} alt="" className="w-[8.6rem] h-[8rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" />
               </div>
               <div className="relative z-10 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1 shadow-md shrink-0">
+                  <div className="w-6 h-6 bg-white rounded-xl flex items-center justify-center p-1 shadow-md shrink-0">
                     <img src={SYSTEM_LOGO} alt="SIGDE LOGO" className="w-full h-full object-contain mix-blend-multiply" />
                   </div>
                   <div>
@@ -1972,7 +1972,7 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
           <img 
             src={SYSTEM_LOGO} 
             alt="Logotipo do Sistema" 
-            className="w-full max-w-[770px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22]" 
+            className="w-full max-w-[550px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22] hover:opacity-[0.4] transition-opacity duration-500" 
             referrerPolicy="no-referrer"
           />
         </div>
@@ -1981,7 +1981,7 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
         <div className="page-break relative flex flex-col items-center justify-between text-center min-h-[9.5in] py-16">
           <WatermarkPrintBg />
           <div className="flex flex-col items-center">
-            <img src={SYSTEM_LOGO} alt="Logotipo do Sistema" className="w-34 h-34 object-contain mix-blend-multiply" referrerPolicy="no-referrer" />
+            <img src={SYSTEM_LOGO} alt="Logotipo do Sistema" className="w-[6.1rem] h-[6.1rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" referrerPolicy="no-referrer" />
             <h1 className="text-sm uppercase font-black tracking-widest text-slate-950 mt-4">REPÚBLICA DE MOÇAMBIQUE</h1>
             <h2 className="text-xs uppercase font-bold text-slate-800 mt-1">MINISTÉRIO DE EDUCAÇÃO E CULTURA</h2>
             <h3 className="text-xs uppercase font-bold text-slate-600 mt-0.5">DIRECÇÃO NACIONAL DE ENSINO SUPERIOR</h3>

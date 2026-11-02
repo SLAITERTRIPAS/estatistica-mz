@@ -422,7 +422,7 @@ export default function RegistrationForm({
   return (
     <div id="sinagedees-container" className="max-w-md mx-auto p-4 md:p-6">
       <div className="text-center mb-6 space-y-3">
-        <div className="relative p-1 flex items-center justify-center w-20 h-20 mx-auto overflow-hidden bg-transparent">
+        <div className="relative p-1 flex items-center justify-center w-[2.9rem] h-[2.9rem] mx-auto overflow-hidden bg-transparent hover:scale-110 transition-transform duration-300">
           <img 
             src={MOZAMBIQUE_EMBLEM}
             alt="Emblema de Moçambique" 
@@ -999,7 +999,7 @@ export default function RegistrationForm({
                               {logoUrl ? (
                                 <div className="flex flex-col items-center gap-1">
                                   <div className="relative w-12 h-12 bg-white border border-slate-100 rounded-full overflow-hidden shadow-xs flex items-center justify-center mx-auto">
-                                    <img src={logoUrl} alt="Logotipo" className="w-full h-full object-contain" />
+                                    <img src={logoUrl} alt="Logotipo" className="w-full h-full object-contain mix-blend-multiply" style={{ mixBlendMode: 'multiply' }} />
                                   </div>
                                   <span className="text-xs text-emerald-800 font-black">Alterar Imagem</span>
                                 </div>

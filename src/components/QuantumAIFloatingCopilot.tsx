@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Atom, Sparkles, X, Minimize2, Maximize2, Send, RefreshCw, 
+  Atom, Sparkles, X, Send, RefreshCw, 
   CheckCircle2, AlertTriangle, Cpu, TrendingUp, ShieldCheck, 
   HelpCircle, ChevronRight, Copy, Check, BarChart2, Layers
 } from 'lucide-react';
@@ -35,7 +35,6 @@ export default function QuantumAIFloatingCopilot({
   onNavigateToTab
 }: QuantumAIFloatingCopilotProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'audit' | 'metrics'>('chat');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -177,11 +176,7 @@ export default function QuantumAIFloatingCopilot({
       {/* Painel do Copiloto Flutuante */}
       {isOpen && (
         <div 
-          className={`fixed z-50 transition-all duration-300 no-print flex flex-col bg-slate-950/95 backdrop-blur-xl border border-emerald-500/30 shadow-2xl rounded-2xl overflow-hidden ${
-            isExpanded 
-              ? 'inset-4 md:inset-10' 
-              : 'bottom-5 right-5 w-[92vw] sm:w-[440px] h-[580px] max-h-[85vh]'
-          }`}
+          className="fixed z-50 transition-all duration-300 no-print flex flex-col bg-slate-950/95 backdrop-blur-xl border border-emerald-500/30 shadow-2xl rounded-2xl overflow-hidden bottom-5 right-5 w-[92vw] sm:w-[440px] h-[580px] max-h-[85vh]"
         >
           {/* Header Quântico */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-slate-900 via-emerald-950/60 to-slate-900 border-b border-emerald-500/30">
@@ -203,14 +198,6 @@ export default function QuantumAIFloatingCopilot({
             </div>
 
             <div className="flex items-center gap-1 text-slate-400">
-              <button
-                type="button"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1.5 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors"
-                title={isExpanded ? 'Restaurar tamanho' : 'Expandir tela cheia'}
-              >
-                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-              </button>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}

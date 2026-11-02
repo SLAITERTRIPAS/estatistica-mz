@@ -42,7 +42,7 @@ export default function ReportCoverPage({ institution, year, scope = 'institucio
         <img 
           src={MOZAMBIQUE_EMBLEM} 
           alt="Emblema de Moçambique" 
-          className="w-44 aspect-[238/180] object-contain mb-4 mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
+          className="w-[6.6rem] aspect-[238/180] object-contain mb-4 mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
           style={{ mixBlendMode: 'multiply' }}
         />
         <div className="space-y-1.5">
@@ -56,7 +56,7 @@ export default function ReportCoverPage({ institution, year, scope = 'institucio
             DIRECÇÃO NACIONAL DE ENSINO SUPERIOR
           </h3>
         </div>
-        <div className="w-40 h-1 bg-[#009E60] my-4 rounded"></div>
+        <div className="w-32 h-1 bg-[#009E60] my-4 rounded"></div>
       </div>
 
       {/* 2. Main Title section block */}

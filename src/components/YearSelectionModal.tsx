@@ -44,7 +44,7 @@ export default function YearSelectionModal({ onSelect, onBack }: YearSelectionMo
           <img 
             src={MOZAMBIQUE_EMBLEM} 
             alt="Moçambique" 
-            className="w-12 h-12 object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
+            className="w-[1.8rem] h-[1.8rem] object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
             style={{ mixBlendMode: 'multiply' }}
           />
           <span className=" font-black text-slate-800 tracking-tight uppercase text-lg">SIGDE- ONLINE • Estatística</span>

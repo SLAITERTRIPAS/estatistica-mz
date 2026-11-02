@@ -4,6 +4,8 @@ import { User, Institution } from '../types';
 import { PREDEFINED_LOGOS, resolveUserHeaderBranding } from '../constants/institutionLogos';
 import { SYSTEM_LOGO } from '../constants/assets';
 
+import FullscreenImageModal from './FullscreenImageModal';
+
 interface LogoCustomizerModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +27,7 @@ export default function LogoCustomizerModal({
   const [activeTab, setActiveTab] = useState<'presets' | 'upload' | 'url'>('presets');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -73,6 +76,11 @@ export default function LogoCustomizerModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      <FullscreenImageModal 
+        isOpen={!!fullscreenImage} 
+        onClose={() => setFullscreenImage(null)} 
+        imageSrc={fullscreenImage} 
+      />
       <div className="bg-slate-900 border-2 border-[#1e1e4a] rounded-2xl max-w-2xl w-full text-white shadow-2xl overflow-hidden flex flex-col my-auto">
         {/* Modal Header */}
         <div className="p-4 sm:p-6 border-b border-[#1e1e4a] flex items-center justify-between bg-[#07071e]">
@@ -104,7 +112,11 @@ export default function LogoCustomizerModal({
           </label>
           <div className="bg-[#0b0b29] border border-[#1e1e4a] rounded-xl p-3 sm:p-4 flex items-center justify-between gap-4 shadow-inner">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-14 h-14 shrink-0 bg-white rounded-xl border-2 border-[#fec107] flex items-center justify-center p-1 overflow-hidden shadow-md">
+              <div 
+                className="w-14 h-14 shrink-0 bg-transparent rounded-xl border-2 border-[#fec107] flex items-center justify-center p-1 overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => setFullscreenImage(selectedLogo)}
+                title="Clique para ver em tela cheia"
+              >
                 <img
                   src={selectedLogo}
                   alt="Pré-visualização do Logotipo"
@@ -196,11 +208,12 @@ export default function LogoCustomizerModal({
                           : 'border-[#1e1e4a] bg-slate-800/40 hover:bg-slate-800 hover:border-slate-600'
                       }`}
                     >
-                      <div className="w-10 h-10 shrink-0 bg-white rounded-lg p-1 flex items-center justify-center overflow-hidden border border-slate-700">
+                      <div className="w-10 h-10 shrink-0 bg-transparent rounded-lg p-1 flex items-center justify-center overflow-hidden border border-slate-700">
                         <img
                           src={item.svgDataUri}
                           alt={item.shortName}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-contain mix-blend-multiply"
+                          style={{ mixBlendMode: 'multiply' }}
                         />
                       </div>
                       <div className="min-w-0">
