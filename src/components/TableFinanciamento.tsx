@@ -1,0 +1,73 @@
+import React from 'react';
+import { Landmark } from 'lucide-react';
+
+interface TableFinanciamentoProps {
+  data: Array<{ fonte: string; valor: number }> | undefined;
+  onChange: (idx: number, value: string) => void;
+}
+
+export const TableFinanciamento: React.FC<TableFinanciamentoProps> = ({ data, onChange }) => {
+  // Ensure we fall back to defaults if not populated
+  const rows = data || [
+    { fonte: 'Orçamento Geral do Estado (OGE)', valor: 0 },
+    { fonte: 'Doações (internas e externas)', valor: 0 },
+    { fonte: 'Créditos', valor: 0 },
+    { fonte: 'Receitas próprias', valor: 0 },
+    { fonte: 'Total', valor: 0 }
+  ];
+
+  const oge = rows.find(r => r.fonte === 'Orçamento Geral do Estado (OGE)')?.valor || 0;
+  const doacoes = rows.find(r => r.fonte === 'Doações (internas e externas)')?.valor || 0;
+  const creditos = rows.find(r => r.fonte === 'Créditos')?.valor || 0;
+  const receitas = rows.find(r => r.fonte === 'Receitas próprias')?.valor || 0;
+  const totalCalculado = oge + doacoes + creditos + receitas;
+
+  return (
+    <div className="bg-white border-[3px] border-black rounded-[20px] p-6 shadow-[5px_5px_0px_rgba(0,0,0,1)] space-y-4 w-[99%] max-w-none mx-auto">
+      <div className="flex justify-between items-center mb-4 text-xs md:text-xs">
+        <h3 className="font-bold text-slate-800 border-b border-slate-50 pb-2 flex-grow flex items-center gap-1.5 uppercase tracking-tight text-sm">
+          <Landmark className="h-4 w-4 text-sky-700" /> Quadro 2. Financiamento da instituição por fonte
+        </h3>
+      </div>
+
+      <div className="rounded-xl border-2 border-black shadow-sm overflow-hidden">
+        <table className="w-full text-xs border-collapse bg-white whitespace-nowrap">
+          <thead>
+            <tr className="bg-slate-200 border-b-2 border-black">
+              <th className="border-r-2 border-black p-3 text-left font-black text-slate-700 w-2/3 uppercase">Fonte</th>
+              <th className="p-3 text-center font-black text-slate-700 w-1/3 uppercase">Valor em MT(10^3)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, idx) => {
+              if (row.fonte === 'Total') {
+                return (
+                  <tr key={idx} className="bg-slate-100 font-bold border-t-2 border-black">
+                    <td className="border-r-2 border-black p-3 text-left font-black text-slate-800 bg-slate-100">{row.fonte}</td>
+                    <td className="p-3 text-center font-black text-slate-800 bg-slate-100">{totalCalculado.toLocaleString('pt-PT')}</td>
+                  </tr>
+                );
+              }
+
+              return (
+                <tr key={idx} className="border-b-2 border-slate-200">
+                  <td className="border-r-2 border-black p-3 text-left font-bold bg-slate-50 text-slate-700">{row.fonte}</td>
+                  <td className="p-0 relative">
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-full h-full min-h-[44px] bg-transparent p-3 text-center font-mono font-bold focus:outline-none focus:bg-sky-100 text-slate-800"
+                      value={row.valor || ''}
+                      onChange={(e) => onChange(idx, e.target.value)}
+                      placeholder="0"
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};

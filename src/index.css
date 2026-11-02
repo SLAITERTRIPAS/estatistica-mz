@@ -1,0 +1,326 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  /* Font weights optimization */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Responsive Breakpoints as per user request */
+  --breakpoint-sm: 600px;  /* Tablet Vertical base */
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px; /* Notebook / Medium base */
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px; /* Desktop base */
+}
+
+/* Global Typography - Modern System UI Feel (Inter) */
+*, body, html {
+  font-family: "Inter", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  font-synthesis: none;
+}
+
+img, svg {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  shape-rendering: geometricPrecision;
+  -ms-interpolation-mode: bicubic;
+  backface-visibility: hidden;
+  transform: translateZ(0); /* Hardware acceleration for crispness */
+}
+
+/* Ensure HD sharpness for buttons and inputs */
+button, input, select, textarea {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  font-family: inherit;
+}
+
+/* Base size: 16px as requested for 100% zoom visibility */
+html {
+  font-size: 16px; 
+}
+
+body {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5;
+  color: #0f172a;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Inter", sans-serif !important;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+/* Headings relative sizes */
+h1 { font-size: 2.25rem; } /* 36px */
+h2 { font-size: 1.875rem; } /* 30px */
+h3 { font-size: 1.5rem; } /* 24px */
+h4 { font-size: 1.25rem; } /* 20px */
+h5 { font-size: 1.125rem; } /* 18px */
+h6 { font-size: 1rem; } /* 16px */
+
+/* Automatic background removal for the Logotipo / Emblema */
+img[alt*="Moçambique"], img[alt*="República"], img[src*="OIP.skyym"], img[src*="thfvnext"] {
+  mix-blend-mode: multiply;
+  background-color: transparent !important;
+}
+
+
+/* Customizing Tailwind classes for tighter sizing control if needed */
+@layer base {
+  .text-xs { font-size: 0.75rem; /* 12px */ }
+  .text-sm { font-size: 0.875rem; /* 14px */ }
+  .text-base { font-size: 1rem; /* 16px */ }
+}
+
+body, html, #root {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  color: #0f172a;
+}
+
+/* Custom Scrollbar for a cleaner look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+@keyframes rgb-glow {
+  0% { color: #ff0000; }
+  20% { color: #ffff00; }
+  40% { color: #00ff00; }
+  60% { color: #00ffff; }
+  80% { color: #0000ff; }
+  100% { color: #ff0000; }
+}
+
+.animate-rgb {
+  animation: rgb-glow 3s linear infinite;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: white !important;
+  }
+  
+  /* Hide interactive elements and navigation during print */
+  #master-upper-header,
+  header,
+  nav, 
+  aside, 
+  button, 
+  .no-print,
+  #sidebar-menu,
+  #side-navigation-panel,
+  .sidebar-trigger,
+  .breadcrumb-nav {
+    display: none !important;
+  }
+
+  /* Expand main content to full width */
+  main,
+  #root,
+  .main-content,
+  #dashboard-split-layout,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  
+  .overflow-y-auto, .overflow-x-auto, .max-h-72 {
+     overflow: visible !important;
+     max-height: none !important;
+  }
+
+  /* Ensure the report wrapper is visible and clean */
+  #stats-preview-wrapper {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+  }
+  
+  /* Remove shadows and borders that might look bad on paper */
+  .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-none {
+    box-shadow: none !important;
+  }
+  
+  .border-slate-950 {
+    border-color: #000 !important;
+  }
+
+  /* Page break control */
+  .page-break-before {
+    page-break-before: always;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  /* Margens Padrão ABNT no Papel A4: Superior 3cm, Direita 2cm, Inferior 2cm, Esquerda (encadernação) 3cm */
+  margin: 3cm 2cm 2cm 3cm;
+  margin-top: 3cm;
+  margin-right: 2cm;
+  margin-bottom: 2cm;
+  margin-left: 3cm;
+  @bottom-center {
+    content: "06/09/26, 20:03/Documento SIGDE -";
+    font-size: 8pt;
+    font-family: monospace;
+    color: #000000;
+  }
+}
+
+p, .text-justify, article p, .font-serif p {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    counter-reset: sectionPage 2;
+  }
+
+  .cover-page {
+    /* Dimensão da mancha gráfica útil A4 ABNT (210 - 50 = 160mm de largura útil) */
+    width: 100% !important;
+    max-width: 160mm !important;
+    min-height: 240mm !important;
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+    margin: 0 auto;
+    padding: 0 !important;
+    box-sizing: border-box;
+  }
+  
+  #print-entire-document {
+    /* Dimensão da mancha gráfica útil A4 ABNT: 160mm de largura x 247mm de altura */
+    width: 100% !important;
+    max-width: 160mm !important;
+    height: auto !important;
+    margin: 0 auto;
+    padding: 0 !important;
+    box-sizing: border-box;
+    background: transparent !important;
+  }
+
+  .page-break {
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 235mm;
+  }
+
+  .numbered-page {
+    position: relative;
+    padding-bottom: 12mm;
+    counter-increment: sectionPage;
+  }
+  .numbered-page::after {
+    content: "06/09/26, 20:03/Documento SIGDE - Página " counter(sectionPage);
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 8pt;
+    font-family: monospace;
+    color: #000000;
+    white-space: nowrap;
+  }
+
+  .watermark-print {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 520px !important;
+    height: 520px !important;
+    max-width: 85% !important;
+    opacity: 0.22 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .watermark-print img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    mix-blend-mode: multiply !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .page-watermark {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 480px !important;
+    height: 480px !important;
+    max-width: 85% !important;
+    opacity: 0.22 !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .page-watermark img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    mix-blend-mode: multiply !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

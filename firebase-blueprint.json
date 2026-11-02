@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role and organizational mapping",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["FocalPoint", "OrgaoMaximoIES", "RepresentanteProvincial", "RepresentanteRegional"] },
+        "iesId": { "type": "string" },
+        "provincia": { "type": "string" },
+        "regiao": { "type": "string" },
+        "photoURL": { "type": "string" }
+      },
+      "required": ["uid", "role"]
+    },
+    "IES": {
+      "title": "IES",
+      "description": "Instituição de Ensino Superior",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "provincia": { "type": "string" },
+        "regiao": { "type": "string" },
+        "status": { "type": "string" },
+        "signatureUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "provincia", "regiao"]
+    },
+    "RegisteredAccount": {
+      "title": "RegisteredAccount",
+      "description": "User login credentials and profile details stored in Firestore",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "password": { "type": "string" },
+        "user": { "type": "object" }
+      },
+      "required": ["email", "password", "user"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/ies/{iesId}": {
+      "schema": "IES",
+      "description": "IES information"
+    },
+    "/registered_accounts/{email}": {
+      "schema": "RegisteredAccount",
+      "description": "Registered credentials and profiles"
+    }
+  }
+}

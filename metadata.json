@@ -1,0 +1,12 @@
+{
+  "name": "Estatística IES Moçambique",
+  "description": "Sistema Nacional de Gestão de Dados Estatísticos do Ensino Superior de Moçambique. Coleta, validação e consolidação nacional.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
