@@ -54,6 +54,33 @@ export default function ProvincialDashboard({
 
   const finalFemalePercentage = totalStudents > 0 ? ((femaleStudents / totalStudents) * 100).toFixed(1) : '0';
 
+  const handleExportProvincialCSV = () => {
+    const headers = ["ID_INSTITUICAO", "INSTITUICAO", "PROVINCIA", "ANO", "ESTADO", "ESTUDANTES_HOMENS", "ESTUDANTES_MULHERES", "TOTAL_ESTUDANTES", "DOCENTES_TI", "DOCENTES_TP"];
+    const rows = matchedSubsByYear.map(s => [
+      s.institutionId,
+      `"${(s.institutionName || '').replace(/"/g, '""')}"`,
+      `"${(s.province || currentUser.province || '').replace(/"/g, '""')}"`,
+      s.year,
+      s.status,
+      s.data?.studentsMale || 0,
+      s.data?.studentsFemale || 0,
+      (s.data?.studentsMale || 0) + (s.data?.studentsFemale || 0),
+      s.data?.teachersFullTime || 0,
+      s.data?.teachersPartTime || 0
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `SIGDE_ESTATISTICAS_${(currentUser.province || 'PROVINCIA').toUpperCase()}_${selectedYear}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Official Header block */}
@@ -320,9 +347,7 @@ export default function ProvincialDashboard({
               </div>
 
               <button
-                onClick={() => {
-                  alert('A gerar ficheiro EXCEL consolidado da Província...\nConsolidação provincial concluída com sucesso!');
-                }}
+                onClick={handleExportProvincialCSV}
                 className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-lg text-xs cursor-pointer transition-colors"
               >
                 <Download className="h-3.5 w-3.5" /> Exportar Estatísticas de {currentUser.province}

@@ -31,7 +31,7 @@ export default function WelcomeScreen({ user, institutions, year, onComplete, re
       const inst = institutions.find(i => i.id === user.institutionId);
       if (inst?.province) return inst.province;
     }
-    return 'Nível Central • Maputo Cidade';
+    return 'Gaza';
   };
 
   const getRoleBadgeLabel = () => {
@@ -62,7 +62,6 @@ export default function WelcomeScreen({ user, institutions, year, onComplete, re
       
       if (progressValue >= 100) {
         clearInterval(intervalId);
-        // Pequeno atraso para a animação completar visualmente antes da transição
         setTimeout(() => {
           onCompleteRef.current();
         }, 200);
@@ -76,7 +75,7 @@ export default function WelcomeScreen({ user, institutions, year, onComplete, re
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 text-white overflow-y-auto p-4 sm:p-6 select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#090e1a] text-white p-4 select-none overflow-y-auto"
       id="welcome-portal-overlay"
     >
       <FullscreenImageModal 
@@ -84,138 +83,99 @@ export default function WelcomeScreen({ user, institutions, year, onComplete, re
         onClose={() => setFullscreenImage(null)} 
         imageSrc={fullscreenImage} 
       />
-      <style>{`
-        @keyframes rgbFlow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .rgb-progress-bar-fill {
-          background: linear-gradient(90deg, #ff4545, #ffee55, #44ff44, #33bbff, #ee44ff, #ff4545);
-          background-size: 300% 300%;
-          animation: rgbFlow 3.5s linear infinite;
-        }
-        .ambient-rgb-glow {
-          box-shadow: 0 0 20px rgba(68, 255, 68, 0.4), 0 0 40px rgba(33, 187, 255, 0.2);
-        }
-      `}</style>
-      
-      {/* Background radial soft light for depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,41,59,0.5)_0%,rgba(15,23,42,1)_100%)] z-0" />
 
       <motion.div 
-        className="relative z-10 w-full max-w-xl flex flex-col items-center bg-slate-800/60 backdrop-blur-md border border-slate-700/50 rounded-3xl p-4 sm:p-8 md:p-12 shadow-2xl space-y-4 sm:space-y-8"
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        className="w-full max-w-[460px] bg-[#152033] border border-[#1f2d47] rounded-[28px] p-6 sm:p-8 shadow-2xl flex flex-col items-center justify-center text-center select-none relative z-10 welcome-screen-reset"
+        style={{ textAlign: 'center' }}
+        initial={{ opacity: 0, y: 20, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        {/* State/National Emblem Header */}
-        <motion.div 
-          className="flex flex-col items-center space-y-4"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+        <style>{`
+          .welcome-screen-reset p, 
+          .welcome-screen-reset h1, 
+          .welcome-screen-reset h2, 
+          .welcome-screen-reset h3 {
+            text-align: center !important;
+            justify-content: center !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+        `}</style>
+        {/* 1. National Emblem - Vivid foreground, perfectly crisp and bright as in original */}
+        <div 
+          className="w-[9rem] h-[9rem] flex items-center justify-center bg-transparent cursor-pointer hover:scale-105 transition-transform relative z-20"
+          onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
+          title="Clique para ver em tela cheia"
         >
-          <div className="flex items-center justify-center">
-            {/* National Emblem - Centered, transparent background */}
-            <div 
-              className="w-[7.2rem] h-[7.2rem] flex items-center justify-center bg-transparent cursor-pointer hover:scale-110 transition-transform active:scale-95"
-              onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
-              title="Clique para ver em tela cheia"
-            >
-              <img 
-                src={MOZAMBIQUE_EMBLEM} 
-                alt="República de Moçambique" 
-                className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] [image-rendering:high-quality]" 
-                style={{ mixBlendMode: 'multiply' }}
-              />
-            </div>
-          </div>
-
-          <div className="text-center">
-            <p className="text-xs text-emerald-400 font-black tracking-[0.25em] uppercase text-center">
-              REPÚBLICA DE MOÇAMBIQUE
-            </p>
-            <p className="text-xs text-slate-300 font-black tracking-[0.1em] uppercase text-center leading-none mt-1">
-              MINISTÉRIO DE EDUCAÇÃO E CULTURA
-            </p>
-            <p className="text-xs text-slate-400 font-bold tracking-[0.05em] uppercase text-center leading-none mt-1">
-              DIREÇÃO NACIONAL DE ENSINO SUPERIOR (DNES)
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Welcome greeting */}
-        <div className="text-center space-y-4 w-full">
-          <motion.h1 
-            className="text-2xl md:text-3xl font-black  text-slate-100 tracking-tight leading-snug"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            {user.name}, Bem-vindo à DNES ({anoEstatistico})
-          </motion.h1>
-
-          <motion.p 
-            className="text-md font-mono text-emerald-400 uppercase tracking-widest font-black"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          >
-            Província da IES: {getProvinceDisplay()}
-          </motion.p>
-
-          <motion.div 
-            className="text-xs text-slate-400 uppercase tracking-widest font-bold font-mono block mt-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-          >
-            Perfil Homologado: {getRoleBadgeLabel()}
-          </motion.div>
+          <img 
+            src="/emblem_transparent_vivid.png" 
+            alt="República de Moçambique" 
+            className="w-full h-full object-contain [image-rendering:high-quality] drop-shadow-md select-none" 
+          />
         </div>
 
-        {/* Test User List */}
-        <TestUserList accounts={registeredAccounts} onSelectAccount={() => {}} />
+        {/* 2. Official Institutional Titles - 100% Centered */}
+        <div className="w-full text-center mt-3 space-y-1 flex flex-col items-center justify-center">
+          <p className="text-[11px] sm:text-xs text-[#00df82] font-black tracking-[0.2em] uppercase leading-none w-full !text-center">
+            REPÚBLICA DE MOÇAMBIQUE
+          </p>
+          <p className="text-[10px] sm:text-[11px] text-white font-black tracking-[0.08em] uppercase leading-none pt-0.5 w-full !text-center">
+            MINISTÉRIO DE EDUCAÇÃO E CULTURA
+          </p>
+          <p className="text-[9px] sm:text-[10px] text-slate-400 font-bold tracking-[0.05em] uppercase leading-none pt-0.5 w-full !text-center">
+            DIREÇÃO NACIONAL DE ENSINO SUPERIOR (DNES)
+          </p>
+        </div>
 
-        {/* Progress Bar Container */}
-        <motion.div 
-          className="w-full space-y-4 pt-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          {/* Progress bar outer container */}
-          <div className="relative w-full h-4 bg-slate-950 rounded-full overflow-hidden p-[2px] border border-slate-700/50">
-            {/* The actual RGB filled sliding track */}
+        {/* 3. Welcome Heading - 100% Centered */}
+        <h1 className="text-2xl sm:text-[28px] font-black text-white tracking-tight !text-center leading-tight mt-6 w-full">
+          {user.name}, Bem-vindo<br />à DNES ({anoEstatistico})
+        </h1>
+
+        {/* 4. Province Badge - 100% Centered */}
+        <div className="w-full !text-center mt-2.5">
+          <p className="text-sm font-black text-[#00df82] uppercase tracking-wider !text-center font-mono w-full">
+            PROVÍNCIA DA IES: {getProvinceDisplay()}
+          </p>
+        </div>
+
+        {/* 5. Role Badge - 100% Centered */}
+        <div className="w-full !text-center mt-3">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 uppercase tracking-[0.18em] font-black !text-center font-mono w-full">
+            PERFIL HOMOLOGADO: {getRoleBadgeLabel().toUpperCase()}
+          </p>
+        </div>
+
+        {/* 6. Test User Selector Button */}
+        <div className="w-full mt-6">
+          <TestUserList accounts={registeredAccounts} onSelectAccount={() => {}} />
+        </div>
+
+        {/* 7. Progress Bar */}
+        <div className="w-full space-y-3 mt-6">
+          <div className="w-full h-2.5 sm:h-3 bg-[#060b17] rounded-full overflow-hidden border border-slate-800 p-[1px]">
             <div 
-              className="h-full rounded-full rgb-progress-bar-fill ambient-rgb-glow"
-              style={{ width: `${progress}%` }}
+              className="h-full rounded-full transition-all duration-75 ease-out"
+              style={{ 
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, #22c55e 0%, #06b6d4 55%, #818cf8 100%)',
+                boxShadow: '0 0 10px rgba(34, 197, 94, 0.4)'
+              }}
             />
           </div>
 
-          {/* Reads percentage accompanying progress */}
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400">
-            <span className="uppercase tracking-widest font-black text-xs text-emerald-400">
-              A carregar painel de recolha...
-            </span>
-            <span className="text-sm font-black text-slate-100 bg-slate-950 font-mono px-2.5 py-1 rounded-md border border-slate-800">
-              {progress}%
+          {/* 8. Progress label and percentage - 100% Centered */}
+          <div className="flex flex-col items-center justify-center gap-1.5 text-xs font-mono text-center w-full mt-2" style={{ textAlign: 'center' }}>
+            <span className="uppercase tracking-wider font-black text-[11px] text-[#00df82] text-center w-full" style={{ textAlign: 'center' }}>
+              A CARREGAR PAINEL DE RECOLHA... ({progress}%)
             </span>
           </div>
-        </motion.div>
-      </motion.div>
-
-      {/* Footer Branding */}
-      <motion.div 
-        className="absolute bottom-6 z-10 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-      >
-        <p className="text-xs text-slate-500 font-mono uppercase tracking-widest">
-          SIGDE- ONLINE • Sistema Integrado de Gestão do Ensino Superior
-        </p>
+        </div>
       </motion.div>
     </div>
   );

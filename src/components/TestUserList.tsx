@@ -32,10 +32,10 @@ export default function TestUserList({ accounts, onSelectAccount }: TestUserList
       <button 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between bg-amber-50 border-2 border-amber-200 hover:border-amber-400 text-amber-950 font-black text-sm px-5 py-3 rounded-xl transition-all shadow-[2px_2px_0px_rgba(217,119,6,0.3)]"
+        className="w-full flex items-center justify-between bg-[#fffdf0] border border-amber-200 hover:border-amber-400 text-amber-950 font-black text-xs sm:text-sm px-5 py-3 rounded-2xl transition-all shadow-sm"
       >
-        <span>🧪 Aceder como Usuário de Teste</span>
-        <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="flex items-center gap-2">💉 Aceder como Usuário de Teste</span>
+        <ChevronDown className={`w-4 h-4 text-amber-950 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

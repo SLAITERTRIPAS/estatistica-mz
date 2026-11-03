@@ -451,10 +451,6 @@ export const proyectoTeoricoHumanoData = {
       {
         title: "4. Manutenção Contínua e Suporte de Engenharia",
         desc: "Atualizações periódicas de acessibilidade, monitorização constante de segurança contra fraudes e atendimento direto via canal de chat integrado para apoio constante a utilizadores."
-      },
-      {
-        title: "5. Inclusão Digital e Inovação para Áreas Rurais",
-        desc: "Implementação de suporte offline-first inteligente, tradução contextual para Changana, Emakhuwa e Sena, relatórios analíticos preditivos para as províncias e apoio à usabilidade inclusiva nas zonas rurais."
       }
     ]
   },

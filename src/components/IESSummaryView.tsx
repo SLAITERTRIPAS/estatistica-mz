@@ -97,8 +97,62 @@ export default function IESSummaryView({ institutions, submissions, currentUser 
   }).sort((a,b) => b.total.t - a.total.t);
 
   const handleDownloadPDF = () => {
-    window.print();
+    try {
+      const doc = new jsPDF();
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('REPÚBLICA DE MOÇAMBIQUE', 105, 15, { align: 'center' });
+      doc.setFontSize(11);
+      doc.text('MINISTÉRIO DE EDUCAÇÃO E CULTURA', 105, 22, { align: 'center' });
+      doc.setFontSize(9);
+      doc.text('DIRECÇÃO NACIONAL DE ENSINO SUPERIOR (DNES)', 105, 27, { align: 'center' });
+      
+      doc.setFontSize(11);
+      doc.text('SÍNTESE ESTATÍSTICA NACIONAL E REGIONAL - 2026', 105, 36, { align: 'center' });
+
+      const tableRows = summaryData.map(d => [
+        d.instName,
+        d.discente.t.toLocaleString('pt-PT'),
+        (d.docenteTI.t + d.docenteTP.t).toLocaleString('pt-PT'),
+        (d.invTI.t + d.invTP.t).toLocaleString('pt-PT'),
+        (d.ctaTI.t + d.ctaTP.t).toLocaleString('pt-PT'),
+        d.total.t.toLocaleString('pt-PT')
+      ]);
+
+      autoTable(doc, {
+        startY: 42,
+        head: [['Instituição', 'Discentes', 'Docentes', 'Investigadores', 'CTA', 'Total Geral']],
+        body: tableRows,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [11, 11, 41] }
+      });
+
+      doc.save(`SIGDE_ONLINE_RESUMO_ESTATISTICO_${new Date().getFullYear()}.pdf`);
+    } catch (e) {
+      console.warn("jsPDF fallback to print:", e);
+    }
+
+    setTimeout(() => {
+      window.print();
+    }, 300);
   };
+
+  // Prepare Enrollment History Chart Data (Last 3 years for current institution)
+  const enrollmentHistoryData = React.useMemo(() => {
+    if (!currentUser.institutionId) return [];
+    
+    return submissions
+      .filter(s => s.institutionId === currentUser.institutionId)
+      .sort((a, b) => b.year - a.year)
+      .slice(0, 3)
+      .reverse()
+      .map(s => ({
+        ano: s.year.toString(),
+        Estudantes: (s.data?.studentsMale || 0) + (s.data?.studentsFemale || 0),
+        Homens: s.data?.studentsMale || 0,
+        Mulheres: s.data?.studentsFemale || 0
+      }));
+  }, [submissions, currentUser.institutionId]);
 
   // Prepare Chart Data
   const COLORS = ['#1e1b4b', '#4338ca', '#0ea5e9', '#0d9488'];
@@ -294,21 +348,46 @@ export default function IESSummaryView({ institutions, submissions, currentUser 
              {/* Secondary Graphic - Top Performers / Sizes */}
              <div className="bg-slate-50 p-6 rounded-2xl border-4 border-slate-950 shadow-[6px_6px_0px_rgba(15,23,42,1)] transition-transform hover:-translate-y-1 hover:shadow-[10px_10px_0px_rgba(15,23,42,1)] duration-300 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-[#0ea5e9] to-[#0d9488]"></div>
-               <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tighter border-b-2 border-slate-900 inline-block">Proporção por Categoria em {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}</h3>
+               <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tighter border-b-2 border-slate-900 inline-block">
+                 Proporção por Categoria em {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
+               </h3>
                
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-72">
-                  {pieData.map((data, index) => (
-                    <div key={data.name} className="flex flex-col justify-center items-center bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-slate-400 transition-colors">
-                      <div className="w-10 h-10 rounded-full mb-3 shadow-inner flex items-center justify-center text-white font-bold" style={{ backgroundColor: COLORS[index % COLORS.length] }}>
-                        {data.name.charAt(0)}
+               <div className="h-72 w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+                    {pieData.map((data, index) => (
+                      <div key={data.name} className="flex flex-col justify-center items-center bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-slate-400 transition-colors">
+                        <div className="w-10 h-10 rounded-full mb-3 shadow-inner flex items-center justify-center text-white font-bold" style={{ backgroundColor: COLORS[index % COLORS.length] }}>
+                          {data.name.charAt(0)}
+                        </div>
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{data.name}</span>
+                        <span className="text-2xl font-black text-slate-950 mt-1">{data.value.toLocaleString()}</span>
                       </div>
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{data.name}</span>
-                      <span className="text-2xl font-black text-slate-950 mt-1">{data.value.toLocaleString()}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                </div>
              </div>
            </div>
+
+           {/* Enrollment History Chart - Only for Institutions with History */}
+           {enrollmentHistoryData.length > 0 && (
+             <div className="bg-slate-50 p-6 rounded-2xl border-4 border-slate-950 shadow-[6px_6px_0px_rgba(15,23,42,1)] relative w-full">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#1e1b4b] to-[#0d9488]"></div>
+                <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tighter border-b-2 border-slate-900 inline-block">Histórico de Ingressos (Últimos 3 Anos)</h3>
+                <div className="h-[300px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={enrollmentHistoryData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cbd5e1" />
+                      <XAxis dataKey="ano" tick={{ fontSize: 12, fontWeight: 'bold', fill: '#0f172a' }} axisLine={{ stroke: '#0f172a', strokeWidth: 2 }} />
+                      <YAxis tick={{ fontSize: 12, fontWeight: 'bold', fill: '#0f172a' }} axisLine={{ stroke: '#0f172a', strokeWidth: 2 }} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar name="Homens" dataKey="Homens" fill="#1e1b4b" radius={[4, 4, 0, 0]} />
+                      <Bar name="Mulheres" dataKey="Mulheres" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+             </div>
+           )}
 
            {/* Large Bar Chart - Institutions */}
            <div className="bg-slate-50 p-6 rounded-2xl border-4 border-slate-950 shadow-[6px_6px_0px_rgba(15,23,42,1)] relative w-full">

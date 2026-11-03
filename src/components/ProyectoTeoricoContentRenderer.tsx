@@ -16,7 +16,7 @@ import {
   DollarSign, 
   CheckCircle 
 } from 'lucide-react';
-import { SYSTEM_LOGO } from '../constants/assets';
+import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 import { 
   budgetData, 
   totalBudgetUSD, 
@@ -34,16 +34,7 @@ interface ProyectoTeoricoContentRendererProps {
   isHumanVersion?: boolean;
 }
 
-const WatermarkPrintBg: React.FC = () => (
-  <div className="page-watermark absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
-    <img 
-      src={SYSTEM_LOGO} 
-      alt="Logotipo do Sistema" 
-      className="w-full max-w-[536px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22]" 
-      referrerPolicy="no-referrer" 
-    />
-  </div>
-);
+const WatermarkPrintBg: React.FC = () => null;
 
 export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRendererProps> = ({ 
   activeSection, 
@@ -87,27 +78,23 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
           </div>
 
           {coverTab === 'capa' ? (
-            <div className="border-4 border-double border-slate-950 p-6 sm:p-12 rounded-2xl bg-white space-y-8 text-center max-w-2xl mx-auto shadow-md relative overflow-hidden group/capa-watermark">
-              {/* Subtle watermarked emblem in background - becomes more visible on hover */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover/capa-watermark:opacity-[0.12] transition-opacity duration-500 pointer-events-none select-none">
-                <img src={SYSTEM_LOGO} alt="" className="w-[24.5rem] h-[24.5rem] object-contain mix-blend-multiply" />
-              </div>
+            <div className="border-4 border-double border-slate-950 p-6 sm:p-12 rounded-2xl bg-white space-y-8 text-center max-w-2xl mx-auto shadow-md relative overflow-hidden">
 
-              {/* Official Headings */}
-              <div className="space-y-2 flex flex-col items-center">
+              {/* Official Headings - 100% Centered */}
+              <div className="space-y-2 flex flex-col items-center justify-center text-center w-full" style={{ textAlign: 'center' }}>
                 <img 
-                  src={SYSTEM_LOGO} 
-                  alt="Logotipo do Sistema" 
-                  className="w-[5rem] h-[5rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" 
+                  src={MOZAMBIQUE_EMBLEM} 
+                  alt="Emblema da República de Moçambique" 
+                  className="w-[5rem] h-[5rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300 mx-auto" 
                   referrerPolicy="no-referrer"
                 />
-                <h1 className="text-xs uppercase font-black tracking-widest text-slate-950">
+                <h1 className="text-xs uppercase font-black tracking-widest text-slate-950 text-center w-full" style={{ textAlign: 'center' }}>
                   REPÚBLICA DE MOÇAMBIQUE
                 </h1>
-                <h2 className="text-xs uppercase font-bold text-slate-850">
+                <h2 className="text-xs uppercase font-bold text-slate-850 text-center w-full" style={{ textAlign: 'center' }}>
                   MINISTÉRIO DE EDUCAÇÃO E CULTURA
                 </h2>
-                <h3 className="text-xs uppercase font-bold text-slate-600">
+                <h3 className="text-xs uppercase font-bold text-slate-600 text-center w-full" style={{ textAlign: 'center' }}>
                   DIRECÇÃO NACIONAL DE ENSINO SUPERIOR
                 </h3>
               </div>
@@ -667,15 +654,15 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
             {/* Explicação Oficial do Novo Logotipo do Sistema */}
             <div className="mt-8 p-6 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden animate-fade-in no-print">
               <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <img src={SYSTEM_LOGO} alt="" className="w-[8.6rem] h-[8rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" />
+                <img src={MOZAMBIQUE_EMBLEM} alt="" className="w-[8.6rem] h-[8rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" />
               </div>
               <div className="relative z-10 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-white rounded-xl flex items-center justify-center p-1 shadow-md shrink-0">
-                    <img src={SYSTEM_LOGO} alt="SIGDE LOGO" className="w-full h-full object-contain mix-blend-multiply" />
+                  <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center p-1 shadow-md shrink-0">
+                    <img src={MOZAMBIQUE_EMBLEM} alt="Emblema de Moçambique" className="w-full h-full object-contain mix-blend-multiply" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black uppercase text-[#fec107] tracking-wider leading-none">Simbolismo do Novo Logotipo Oficial SIGDE</h4>
+                    <h4 className="text-sm font-black uppercase text-[#fec107] tracking-wider leading-none">Emblema Soberano da República de Moçambique & Identidade SIGDE</h4>
                     <span className="text-[10px] text-slate-400 font-mono">Chancela de Identidade e Soberania Digital Moçambicana</span>
                   </div>
                 </div>
@@ -1967,12 +1954,12 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
           ========================================================================= */}
       <div id="print-entire-document" className="hidden print:block p-12 max-w-4xl mx-auto space-y-12 text-slate-950 text-xs leading-relaxed  bg-transparent text-justify relative">
         
-        {/* Marca de água no fundo (PRINT) */}
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none select-none z-0 watermark-print">
+        {/* Marca de água no fundo (PRINT - OCULTA NO MODO PDF/PRINT PARA NÃO DESLOCAR) */}
+        <div className="hidden pointer-events-none select-none z-0 watermark-print print:hidden">
           <img 
-            src={SYSTEM_LOGO} 
-            alt="Logotipo do Sistema" 
-            className="w-full max-w-[550px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22] hover:opacity-[0.4] transition-opacity duration-500" 
+            src={MOZAMBIQUE_EMBLEM} 
+            alt="Emblema da República de Moçambique" 
+            className="w-full max-w-[550px] h-auto object-contain aspect-square mix-blend-multiply opacity-[0.22]" 
             referrerPolicy="no-referrer"
           />
         </div>
@@ -1980,11 +1967,11 @@ export const ProyectoTeoricoContentRenderer: React.FC<ProyectoTeoricoContentRend
         {/* PÁGINA DE CAPA / TÍTULO (PRINT) */}
         <div className="page-break relative flex flex-col items-center justify-between text-center min-h-[9.5in] py-16">
           <WatermarkPrintBg />
-          <div className="flex flex-col items-center">
-            <img src={SYSTEM_LOGO} alt="Logotipo do Sistema" className="w-[6.1rem] h-[6.1rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300" referrerPolicy="no-referrer" />
-            <h1 className="text-sm uppercase font-black tracking-widest text-slate-950 mt-4">REPÚBLICA DE MOÇAMBIQUE</h1>
-            <h2 className="text-xs uppercase font-bold text-slate-800 mt-1">MINISTÉRIO DE EDUCAÇÃO E CULTURA</h2>
-            <h3 className="text-xs uppercase font-bold text-slate-600 mt-0.5">DIRECÇÃO NACIONAL DE ENSINO SUPERIOR</h3>
+          <div className="flex flex-col items-center justify-center text-center w-full" style={{ textAlign: 'center' }}>
+            <img src={MOZAMBIQUE_EMBLEM} alt="Emblema da República de Moçambique" className="w-[6.1rem] h-[6.1rem] object-contain mix-blend-multiply hover:scale-110 transition-transform duration-300 mx-auto" referrerPolicy="no-referrer" />
+            <h1 className="text-sm uppercase font-black tracking-widest text-slate-950 mt-4 text-center w-full" style={{ textAlign: 'center' }}>REPÚBLICA DE MOÇAMBIQUE</h1>
+            <h2 className="text-xs uppercase font-bold text-slate-800 mt-1 text-center w-full" style={{ textAlign: 'center' }}>MINISTÉRIO DE EDUCAÇÃO E CULTURA</h2>
+            <h3 className="text-xs uppercase font-bold text-slate-600 mt-0.5 text-center w-full" style={{ textAlign: 'center' }}>DIRECÇÃO NACIONAL DE ENSINO SUPERIOR</h3>
           </div>
 
           <div className="my-16 space-y-6 max-w-3xl">

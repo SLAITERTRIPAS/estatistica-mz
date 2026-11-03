@@ -29,7 +29,7 @@ import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { 
   Building2, LogOut, FileText, Database, Activity, LayoutDashboard,
-  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check
+  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check, Maximize2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -198,6 +198,37 @@ export default function App() {
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [copiedSharedLink, setCopiedSharedLink] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().then(() => {
+          setIsFullscreen(true);
+          showHeaderToast("⛶ Modo de Ecrã Inteiro Ativado");
+        }).catch(() => {
+          setIsFullscreen(true);
+        });
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().then(() => {
+          setIsFullscreen(false);
+          showHeaderToast("⛶ Modo de Ecrã Normal Restaurado");
+        }).catch(() => {
+          setIsFullscreen(false);
+        });
+      }
+    }
+  };
 
   const handleCloseSystem = () => {
     setShowLogoutConfirm(true);
@@ -1041,18 +1072,18 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] text-slate-800 antialiased flex flex-col" id="app-root-layout">
+    <div className="h-screen w-full bg-[#f1f5f9] text-slate-800 antialiased flex flex-col overflow-hidden" id="app-root-layout">
       <FullscreenImageModal 
         isOpen={!!fullscreenImage} 
         onClose={() => setFullscreenImage(null)} 
         imageSrc={fullscreenImage} 
       />
       
-      {/* 1. Top Banner / Header exactly matching the layout */}
+      {/* 1. Top Banner / Header exactly matching the layout (Fixed Top) */}
       {currentUser && started && chosenWorkYear && !showWelcomeScreen && (
-        <>
-          <header className="bg-[#0b0b29] text-white py-2.5 px-3 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#1e1e4a] sticky top-0 z-40 shadow-2xl" id="master-upper-header">
-            {/* 1. Left: Logotipo Oficial do Sistema SIGDE */}
+        <div className="shrink-0 z-40 w-full" id="master-upper-header-container">
+          <header className="bg-[#0b0b29] text-white py-2 px-3 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#1e1e4a] shadow-2xl" id="master-upper-header">
+            {/* 1. Left: Logo & System Title */}
             <div className="flex items-center gap-3 shrink-0">
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -1064,13 +1095,13 @@ export default function App() {
               <button 
                 onClick={() => setFullscreenImage(systemLogoUrl)}
                 title="Portal Oficial SIGDE - Moçambique (Clique para ver logotipo completo)"
-                className="w-[3.6rem] h-[3.6rem] sm:w-[4.2rem] sm:h-[4.2rem] shrink-0 bg-transparent border-2 border-[#fec107]/70 rounded-2xl flex items-center justify-center overflow-hidden p-1 shadow-lg hover:border-[#fec107] hover:scale-105 transition-all cursor-pointer group"
+                className="w-[3.6rem] h-[3.6rem] sm:w-[4.2rem] sm:h-[4.2rem] shrink-0 bg-white p-1.5 border-2 border-[#fec107] rounded-2xl flex items-center justify-center overflow-hidden shadow-lg cursor-pointer"
               >
                 <img 
                   src={systemLogoUrl} 
                   alt="Logotipo do Sistema SIGDE" 
-                  className="w-full h-full object-contain [image-rendering:high-quality] group-hover:scale-110 group-hover:brightness-110 group-hover:contrast-110 transition-all duration-300 mix-blend-multiply"
-                  style={{ mixBlendMode: 'multiply' }}
+                  className="w-full h-full object-contain" 
+                  style={{ imageRendering: '-webkit-optimize-contrast' }}
                 />
               </button>
               <div className="flex flex-col">
@@ -1078,153 +1109,63 @@ export default function App() {
                   <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#fec107] select-none whitespace-nowrap">
                     SIGDE-ONLINE
                   </h1>
-                  <span className="hidden xl:inline-block text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                  <span className="inline-block text-[9px] font-black uppercase tracking-wider bg-[#002b18] text-[#00ff66] border border-[#00ff66]/40 px-2 py-0.5 rounded-md">
                     SISTEMA NACIONAL
                   </span>
                 </div>
-                <p className="text-[11px] sm:text-xs text-slate-300 leading-tight select-none hidden md:block font-medium">
+                <p className="text-[11px] sm:text-xs text-slate-200 leading-tight select-none hidden md:block font-medium">
                   Sistema Integrado de Gestão e Coleta de Dados Estatísticos
                 </p>
               </div>
             </div>
 
-            {/* 2. Center/Main: Cabeçalho Personalizado do Usuário Logado (com o Seu Logotipo) */}
-            <div className="flex items-center gap-2.5 sm:gap-3.5 border border-[#1e1e4a] rounded-xl px-2.5 sm:px-3.5 py-1.5 bg-[#07071e]/90 shadow-inner group hover:border-[#fec107]/60 transition-all">
-              {/* Logotipo Personalizado do Usuário / IES / Província */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsLogoModalOpen(true)}
-                  title="Clique para personalizar ou alterar o logotipo desta entidade/conta"
-                  className="w-[2.1rem] h-[2.1rem] sm:w-[2.4rem] sm:h-[2.4rem] bg-white rounded-xl border-2 border-[#fec107] flex items-center justify-center p-1 overflow-hidden shadow-md shrink-0 cursor-pointer hover:scale-105 active:scale-95 transition-all group/logo relative"
-                >
-                  <img 
-                    src={userBranding.logoUrl} 
-                    alt={`Logotipo da Entidade - ${userBranding.entityName}`}
-                    className="w-full h-full object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] group-hover:scale-110 group-hover:brightness-110 transition-all duration-300"
-                    style={{ mixBlendMode: 'multiply' }}
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/logo:opacity-100 rounded-xl flex items-center justify-center transition-opacity">
-                    <Sparkles className="h-4 w-4 text-[#fec107]" />
-                  </div>
-                </button>
-                <span className="absolute -bottom-1 -right-1 flex h-3 w-3" title="Logotipo Institucional Ativo">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-slate-900"></span>
-                </span>
+            {/* 2. Center: Date, Time & Weather Box (Real-Time) */}
+            <div className="hidden 2xl:flex flex-col items-center justify-center border border-[#fec107]/70 rounded-2xl px-5 py-1.5 bg-[#07071e] shadow-xl shrink-0 min-w-[320px]">
+              <div className="flex items-center gap-2 text-xs font-black tracking-widest text-[#fec107]">
+                <span>{getDayName(currentTime)}</span>
+                <span className="text-slate-500">|</span>
+                <span className="font-mono text-white text-sm font-black tracking-wider">{formatTime(currentTime)}</span>
               </div>
-
-              {/* Informações da Entidade Personalizada */}
-              <div className="flex flex-col min-w-0 max-w-[170px] sm:max-w-[220px] md:max-w-[280px] lg:max-w-[340px]">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider ${userBranding.badgeBg} ${userBranding.badgeTextColor}`}>
-                    {userBranding.badgeText}
-                  </span>
-                  {userBranding.provinceOrRegion && (
-                    <span className="text-[9px] font-mono text-slate-400 hidden sm:inline">
-                      • {userBranding.provinceOrRegion}
-                    </span>
-                  )}
-                </div>
-                <span className="font-black text-xs sm:text-sm tracking-tight text-white uppercase truncate mt-0.5" title={userBranding.entityName}>
-                  {userBranding.entityName}
-                </span>
-                <div className="flex items-center gap-1.5 text-[10px] text-slate-300 truncate">
-                  <span className="font-bold text-slate-200 truncate">{currentUser.name}</span>
-                  <span className="text-slate-500 hidden md:inline">•</span>
-                  <span className="text-slate-400 hidden md:inline truncate">{userBranding.entitySubtitle}</span>
-                </div>
+              <div className="w-full border-b border-[#fec107]/40 my-1"></div>
+              <span className="text-xs font-black text-[#fec107] tracking-wider uppercase">{formatDate(currentTime)}</span>
+              <div className="mt-1 bg-[#12122b] border border-[#fec107]/30 rounded-lg px-2.5 py-0.5 text-[10px] font-bold text-[#fec107] tracking-tight flex items-center gap-1 shadow-inner">
+                <span>☀️</span>
+                <span>CLIMA: TETE / CAHORA-BASSA 28°C (MAX: 32°C / MIN: 22°C)</span>
               </div>
-
-              {/* Botão Rápido para Personalizar Logotipo */}
-              <button
-                type="button"
-                onClick={() => setIsLogoModalOpen(true)}
-                title="Personalizar Logotipo da Conta / Instituição"
-                className="hidden xl:flex items-center gap-1 text-[10px] font-bold text-[#fec107] bg-[#fec107]/10 hover:bg-[#fec107]/20 border border-[#fec107]/30 px-2 py-1 rounded-lg transition-all cursor-pointer shrink-0"
-              >
-                <Sparkles className="h-3 w-3" />
-                <span>Alterar Logo</span>
-              </button>
             </div>
 
-            {/* 3. DateTime Box */}
-            <div className="hidden 2xl:flex flex-col items-center justify-center border border-[#1e1e4a] px-4 py-1.5 rounded-xl bg-[#07071e] shadow-inner shrink-0">
-              <span className="text-[10px] font-black text-[#fec107] uppercase tracking-widest">{getDayName(currentTime)}</span>
-              <span className="text-xl font-black font-mono tracking-widest text-white">{formatTime(currentTime)}</span>
-              <span className="text-xs text-slate-300 font-bold">{formatDate(currentTime)}</span>
-            </div>
-            
-            {/* 4. Right: User Details & System Actions */}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-              {/* Informações do Utilizador no Cabeçalho */}
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-[#1e1e4a] bg-slate-800 shadow-lg shrink-0">
-                  <img 
-                    src={currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=0b0b29&color=fec107&bold=true`}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
+            {/* 3. Right: User Profile & Action Buttons */}
+            <div className="flex items-center gap-3 shrink-0">
+              {/* User Identity Card */}
+              <div className="flex items-center gap-2.5 bg-[#07071e] border border-[#1e1e4a] rounded-xl px-3 py-1.5 shadow-inner">
+                <div className="w-8 h-8 rounded-lg bg-[#12122b] border border-[#fec107]/60 flex items-center justify-center text-[#fec107] font-black text-xs shrink-0 shadow">
+                  {currentUser.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
                 </div>
-                <div className="hidden md:flex flex-col items-start">
-                  <span className="font-black text-xs tracking-tight text-white uppercase truncate max-w-[120px]">{currentUser.name}</span>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {currentUser.isOwner && currentUser.isProgrammer ? (
-                      <span className="text-[9px] bg-[#fec107] text-[#0b0b29] px-1.5 py-0.2 rounded font-black tracking-widest uppercase">Admin TI</span>
-                    ) : (
-                      <span className="text-[9px] bg-[#fec107] text-[#0b0b29] px-1.5 py-0.2 rounded font-black tracking-widest uppercase truncate max-w-[100px]">{currentUser.role}</span>
-                    )}
-                  </div>
+                <div className="flex flex-col">
+                  <span className="font-black text-xs text-white uppercase tracking-tight truncate max-w-[140px]">{currentUser.name}</span>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-[#fec107] text-[#0b0b29] px-1.5 py-0.2 rounded mt-0.5 w-max truncate max-w-[120px]">
+                    {currentUser.role}
+                  </span>
                 </div>
               </div>
 
-              {/* Botões de Ação do Sistema */}
-              <div className="flex items-center gap-2 border border-[#1e1e4a] rounded-xl p-1.5 bg-[#07071e] shadow-inner">
-                {/* 0. Link Partilhado do Sistema */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const sharedUrl = "https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app";
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(sharedUrl);
-                    }
-                    setCopiedSharedLink(true);
-                    showHeaderToast("🔗 Link de partilha do SIGDE-ONLINE copiado com sucesso!");
-                    setTimeout(() => setCopiedSharedLink(false), 2500);
-                  }}
-                  className={`p-1.5 rounded-lg transition-all cursor-pointer group/link hover:scale-110 active:scale-95 flex items-center gap-1.5 ${
-                    copiedSharedLink 
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
-                      : 'hover:bg-[#1e1e4a] text-[#fec107]'
-                  }`}
-                  title={copiedSharedLink ? "Link Partilhado Copiado!" : "Copiar Link Partilhado do Sistema"}
-                  aria-label="Copiar Link Partilhado do Sistema"
-                >
-                  {copiedSharedLink ? (
-                    <Check size={17} className="text-emerald-400 animate-in zoom-in-75 duration-200" />
-                  ) : (
-                    <Link size={17} className="group-hover/link:rotate-12 transition-transform" />
-                  )}
-                  <span className="hidden xl:inline text-[10px] font-black uppercase tracking-wider">
-                    {copiedSharedLink ? "Copiado!" : "Partilhar"}
-                  </span>
-                </button>
-
-                {/* 1. Sincronização e Atualização */}
+              {/* Action Buttons Box */}
+              <div className="flex items-center gap-2 border border-[#1e1e4a] rounded-2xl p-1.5 bg-[#07071e] shadow-inner">
+                {/* 1. Sincronização */}
                 <button 
                   onClick={handleManualSync}
                   title="Sincronizar e Atualizar Dados em Nuvem"
-                  className="p-2 hover:bg-sky-600 rounded-lg text-sky-400 border border-sky-600/40 bg-sky-950/40 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
+                  className="p-2 hover:bg-sky-600 rounded-xl text-sky-400 border border-sky-500/80 bg-[#061727] hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
                   aria-label="Sincronizar"
                 >
                   <RotateCw className={`h-5 w-5 ${isSyncing ? 'animate-spin' : ''}`} />
                 </button>
 
-                {/* 2. Backup do Banco de Dados */}
+                {/* 2. Backup */}
                 <button 
                   onClick={handleBackupDatabase}
                   title="Exportar Backup de Segurança do Banco de Dados (JSON)"
-                  className="p-2 hover:bg-blue-600 rounded-lg text-blue-400 border border-blue-600/40 bg-blue-950/40 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
+                  className="p-2 hover:bg-blue-600 rounded-xl text-blue-300 border border-blue-500/80 bg-[#061727] hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
                   aria-label="Backup"
                 >
                   <Database className="h-5 w-5" />
@@ -1234,17 +1175,27 @@ export default function App() {
                 <button 
                   onClick={handleToggleMinimize}
                   title={isAppMinimized ? "Restaurar Janela do Sistema" : "Minimizar Janela do Sistema"}
-                  className="p-2 hover:bg-amber-600 rounded-lg text-amber-400 border border-amber-500/50 bg-amber-950/40 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
+                  className="p-2 hover:bg-amber-600 rounded-xl text-amber-500 border border-amber-600/80 bg-[#1e1002] hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
                   aria-label="Minimizar"
                 >
-                  <Minus className="h-5 w-5" />
+                  <Minus className="h-5 w-5 stroke-[2.5]" />
+                </button>
+
+                {/* 4. Ecrã Inteiro / Maximizar */}
+                <button 
+                  onClick={handleToggleFullscreen}
+                  title={isFullscreen ? "Sair de Ecrã Inteiro" : "Modo Ecrã Inteiro"}
+                  className="p-2 hover:bg-emerald-600 rounded-xl text-emerald-400 border border-emerald-600/80 bg-[#021f12] hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
+                  aria-label="Ecrã Inteiro"
+                >
+                  <Maximize2 className="h-5 w-5" />
                 </button>
 
                 {/* 5. Fechar Sessão */}
                 <button 
                   onClick={handleCloseSystem}
                   title="Fechar Sessão do Sistema / Sair"
-                  className="p-2 hover:bg-red-600 rounded-lg text-red-400 border border-red-500 bg-red-950/40 hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
+                  className="p-2 hover:bg-red-600 rounded-xl text-rose-400 border border-rose-600/80 bg-[#240606] hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
                   aria-label="Fechar"
                 >
                   <LogOut className="h-5 w-5" />
@@ -1252,6 +1203,7 @@ export default function App() {
               </div>
             </div>
           </header>
+
 
           {/* Notificação / Toast de Ação do Cabeçalho */}
           {headerNotification && (
@@ -1296,12 +1248,12 @@ export default function App() {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Main split-screen container when logged in, or cover/register when not */}
       {!currentUser || !started ? (
-        <main className={`flex-1 w-full ${(unauthPage === 'cover' && !viewProjectAsGuest) ? '' : 'max-w-7xl mx-auto p-4 sm:p-6 lg:p-8'}`} id="unauthenticated-container">
+        <main className={`flex-1 w-full overflow-y-auto ${(unauthPage === 'cover' && !viewProjectAsGuest) ? '' : 'max-w-7xl mx-auto p-4 sm:p-6 lg:p-8'}`} id="unauthenticated-container">
           {viewProjectAsGuest ? (
             <div className="bg-white border border-slate-150 rounded-2xl p-6 shadow-sm mt-4">
               <ProyectoTeorico 
@@ -1349,7 +1301,7 @@ export default function App() {
           )}
         </main>
       ) : (
-        <div className={`flex-1 flex flex-col lg:flex-row relative ${isAppMinimized ? 'hidden' : ''}`} id="dashboard-split-layout">
+        <div className={`flex-1 flex flex-col lg:flex-row relative overflow-hidden h-full min-h-0 ${isAppMinimized ? 'hidden' : ''}`} id="dashboard-split-layout">
           
           {/* Overlay for mobile sidebar */}
           {isMobileMenuOpen && (
@@ -1359,10 +1311,10 @@ export default function App() {
             />
           )}
 
-          {/* 2. Left Sidebar Navigation Panel */}
+          {/* 2. Left Sidebar Navigation Panel (Fixed / Non-scrolling with page) */}
           <aside 
             className={`
-              fixed lg:relative inset-y-0 left-0 ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'} w-64 bg-[#0b0b29] border-r border-[#1e1e4a] p-4 shrink-0 flex flex-col justify-between z-50 transform transition-all duration-300 ease-in-out
+              fixed lg:relative inset-y-0 left-0 ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'} w-64 bg-[#0b0b29] border-r border-[#1e1e4a] p-4 shrink-0 flex flex-col justify-between z-30 h-full overflow-y-auto custom-scrollbar transform transition-all duration-300 ease-in-out
               ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `} 
             id="side-navigation-panel"
@@ -1696,8 +1648,8 @@ export default function App() {
             </div>
           </aside>
 
-          {/* 3. Right Content Column Workspace */}
-          <div className="flex-1 p-4 md:p-8 overflow-y-auto" id="main-scrolling-workspace">
+          {/* 3. Right Content Column Workspace (The ONLY area that scrolls) */}
+          <div className="flex-1 h-full min-h-0 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-[#f1f5f9]" id="main-scrolling-workspace">
             
             {/* Standard Documents section (Vite manual view toggled via bottom button) */}
             {activeTab === 'documents' ? (
@@ -3083,10 +3035,38 @@ export default function App() {
                           <span className="text-indigo-650 block">Modo livre para impressão de capa de boletim técnico e índices de imprensa homologados.</span>
                         </div>
                         <button 
-                          onClick={() => window.print()}
+                          onClick={() => {
+                            try {
+                              const headers = ["Instituição", "Província", "Estudantes Homens", "Estudantes Mulheres", "Total Estudantes", "Docentes TI", "Estado"];
+                              const rows = computedReportRows.map(r => [
+                                `"${(r.institutionName || '').replace(/"/g, '""')}"`,
+                                `"${(r.province || '').replace(/"/g, '""')}"`,
+                                r.data?.studentsMale || 0,
+                                r.data?.studentsFemale || 0,
+                                (r.data?.studentsMale || 0) + (r.data?.studentsFemale || 0),
+                                r.data?.teachersFullTime || 0,
+                                r.status
+                              ]);
+                              const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+                              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                              const url = URL.createObjectURL(blob);
+                              const link = document.createElement("a");
+                              link.setAttribute("href", url);
+                              link.setAttribute("download", `SIGDE_ONLINE_RELATORIO_GERAL_${reportYear}.csv`);
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              URL.revokeObjectURL(url);
+                            } catch (e) {
+                              console.warn(e);
+                            }
+                            setTimeout(() => {
+                              window.print();
+                            }, 300);
+                          }}
                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs whitespace-nowrap"
                         >
-                          ⬇️ Descarregar Relatório (PDF)
+                          ⬇️ Descarregar Relatório (PDF/CSV)
                         </button>
                       </div>
 
@@ -3330,11 +3310,11 @@ export default function App() {
         />
       )}
 
-      {/* Rodapé oficial alinhado à cor do cabeçalho */}
-      <footer className="bg-[#0b0b29] text-white py-6 px-4 text-center text-xs mt-auto border-t border-[#1e1e4a] flex flex-col items-center justify-center shadow-lg" id="app-footer-brand">
+      {/* Rodapé oficial fixo alinhado à cor do cabeçalho */}
+      <footer className="bg-[#0b0b29] text-white py-2 px-4 sm:px-6 text-center text-xs shrink-0 border-t border-[#1e1e4a] flex flex-col sm:flex-row items-center justify-between gap-1 shadow-lg z-30" id="app-footer-brand">
         <p className="font-bold text-slate-200">© 2026 Ministério de Educação e Cultura</p>
-        <p className="mt-1 font-black text-[#fec107] uppercase tracking-widest text-xs ">Direcção Nacional de Ensino Superior</p>
-        <p className="mt-1 font-semibold text-slate-300 font-mono">Sistema Integrado de Gestão de Dados Estatísticos (SIGDE- ONLINE)</p>
+        <p className="font-black text-[#fec107] uppercase tracking-widest text-[11px]">Direcção Nacional de Ensino Superior</p>
+        <p className="font-semibold text-slate-300 font-mono text-[11px]">SIGDE- ONLINE Moçambique</p>
       </footer>
     </div>
   );

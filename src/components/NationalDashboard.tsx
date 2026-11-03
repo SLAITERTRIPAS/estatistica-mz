@@ -328,6 +328,34 @@ export default function NationalDashboard({
     doc.save(`SIGDE- ONLINE_RELATORIO_NACIONAL_${selectedYear}.pdf`);
   };
 
+  const handleExportNationalCSV = () => {
+    const headers = ["ID_INSTITUICAO", "INSTITUICAO", "PROVINCIA", "ANO", "ESTADO", "ESTUDANTES_HOMENS", "ESTUDANTES_MULHERES", "TOTAL_ESTUDANTES", "DOCENTES_TI", "DOCENTES_TP", "PHD"];
+    const rows = yearSubmissions.map(s => [
+      s.institutionId,
+      `"${(s.institutionName || '').replace(/"/g, '""')}"`,
+      `"${(s.province || '').replace(/"/g, '""')}"`,
+      s.year,
+      s.status,
+      s.data?.studentsMale || 0,
+      s.data?.studentsFemale || 0,
+      (s.data?.studentsMale || 0) + (s.data?.studentsFemale || 0),
+      s.data?.teachersFullTime || 0,
+      s.data?.teachersPartTime || 0,
+      s.data?.teachersWithPhD || 0
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `SIGDE_CONSOLIDADO_NACIONAL_${selectedYear}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // Aggregation of ALL approved & pending submissions
   const yearSubmissions = submissions.filter(sub => sub.year === selectedYear);
 
@@ -890,8 +918,8 @@ export default function NationalDashboard({
             </div>
 
             <button
-              onClick={() => alert(`A descarregar consolidado nacional geral — MEC de Moçambique para o ano ${selectedYear}...\nDownload concluído com êxito.`)}
-              className="px-3 py-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 text-xs font-bold transition-all flex items-center gap-1.5"
+              onClick={handleExportNationalCSV}
+              className="px-3 py-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Download className="h-4 w-4" /> Exportar Dados de {selectedYear}
             </button>

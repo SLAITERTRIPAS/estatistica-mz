@@ -40,14 +40,14 @@ export default function YearSelectionModal({ onSelect, onBack }: YearSelectionMo
     <div className="min-h-screen bg-[#f8fafc] flex flex-col ">
       {/* Mini Header */}
       <header className="p-6 flex items-center justify-between border-b border-slate-200 bg-white shadow-sm z-10">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
           <img 
             src={MOZAMBIQUE_EMBLEM} 
             alt="Moçambique" 
-            className="w-[1.8rem] h-[1.8rem] object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
+            className="w-[2.8rem] h-[2.8rem] object-contain mix-blend-multiply [filter:contrast(106%)_brightness(102%)] [image-rendering:high-quality]" 
             style={{ mixBlendMode: 'multiply' }}
           />
-          <span className=" font-black text-slate-800 tracking-tight uppercase text-lg">SIGDE- ONLINE • Estatística</span>
+          <span className="font-black text-slate-800 tracking-tight uppercase text-lg">SIGDE- ONLINE • Estatística</span>
         </div>
         <button 
           onClick={onBack}
@@ -58,8 +58,8 @@ export default function YearSelectionModal({ onSelect, onBack }: YearSelectionMo
         </button>
       </header>
 
-      <main className="flex-1 flex items-start justify-start p-2 sm:p-5 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] overflow-auto">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start max-w-7xl mx-auto pb-10">
+      <main className="flex-1 flex items-start justify-start p-2 sm:p-6 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] overflow-auto">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start px-2 sm:px-4 pb-10">
           
           {/* Important Info Sidebar (MOVED FROM COVER) */}
           <motion.div

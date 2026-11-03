@@ -45,14 +45,14 @@ export default function ReportCoverPage({ institution, year, scope = 'institucio
           className="w-[6.6rem] aspect-[238/180] object-contain mb-4 mix-blend-multiply [filter:contrast(106%)_brightness(102%)]" 
           style={{ mixBlendMode: 'multiply' }}
         />
-        <div className="space-y-1.5">
-          <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-widest leading-tight">
+        <div className="space-y-1.5 text-center w-full flex flex-col items-center justify-center" style={{ textAlign: 'center' }}>
+          <h1 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-widest leading-tight text-center w-full" style={{ textAlign: 'center' }}>
             REPÚBLICA DE MOÇAMBIQUE
           </h1>
-          <h2 className="text-sm md:text-base font-black text-slate-800 uppercase tracking-widest leading-tight">
+          <h2 className="text-sm md:text-base font-black text-slate-800 uppercase tracking-widest leading-tight text-center w-full" style={{ textAlign: 'center' }}>
             MINISTÉRIO DE EDUCAÇÃO E CULTURA
           </h2>
-          <h3 className="text-xs md:text-sm font-black text-slate-750 uppercase tracking-wider">
+          <h3 className="text-xs md:text-sm font-black text-slate-750 uppercase tracking-wider text-center w-full" style={{ textAlign: 'center' }}>
             DIRECÇÃO NACIONAL DE ENSINO SUPERIOR
           </h3>
         </div>

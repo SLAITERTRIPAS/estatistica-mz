@@ -17,7 +17,6 @@ interface CoverPageProps {
 export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject, registeredAccounts, onAutoLogin }: CoverPageProps) {
   const [events, setEvents] = useState<any[]>([]);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -150,7 +149,7 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
             {/* Ministry Brand Header */}
           <div className="text-center space-y-3 pt-4">
               <div 
-                className="relative flex items-center justify-center w-[2.4rem] h-[2.4rem] mx-auto bg-transparent cursor-pointer hover:scale-110 transition-transform"
+                className="relative flex items-center justify-center w-[4rem] h-[4rem] mx-auto bg-transparent cursor-pointer hover:scale-110 transition-transform"
                 onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
                 title="Clique para ver em tela cheia"
               >
@@ -161,23 +160,23 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
                   style={{ mixBlendMode: 'multiply' }}
                 />
               </div>
-              <div className="space-y-0.5">
-                <h3 className="text-sm font-black tracking-widest text-slate-900 uppercase">
+              <div className="space-y-0.5 text-center w-full flex flex-col items-center justify-center" style={{ textAlign: 'center' }}>
+                <h3 className="text-sm font-black tracking-widest text-slate-900 uppercase text-center w-full" style={{ textAlign: 'center' }}>
                   REPÚBLICA DE MOÇAMBIQUE
                 </h3>
-                <h5 className="text-xs font-black tracking-wider text-slate-900 uppercase leading-snug">
+                <h5 className="text-xs font-black tracking-wider text-slate-900 uppercase leading-snug text-center w-full" style={{ textAlign: 'center' }}>
                   MINISTÉRIO DE EDUCAÇÃO E CULTURA
                 </h5>
-                <p className="text-xs font-bold tracking-wider text-slate-800 uppercase">
+                <p className="text-xs font-bold tracking-wider text-slate-800 uppercase text-center w-full" style={{ textAlign: 'center' }}>
                   DIREÇÃO NACIONAL DE ENSINO SUPERIOR
                 </p>
               </div>
-            </div>
+          </div>
 
-            {/* Event Title Card */}
-            <div className="space-y-6 flex-1 py-4 text-center sm:text-left">
-              <div className="inline-block">
-                <span className={`text-xs font-black tracking-widest uppercase border-2 border-black px-4 py-1.5 rounded-full inline-block  shadow-[1px_1px_0px_rgba(0,0,0,1)] ${
+            {/* Event Title Card - 100% Centered */}
+            <div className="space-y-6 flex-1 py-4 text-center flex flex-col items-center justify-center w-full" style={{ textAlign: 'center' }}>
+              <div className="inline-block text-center mx-auto">
+                <span className={`text-xs font-black tracking-widest uppercase border-2 border-black px-4 py-1.5 rounded-full inline-block shadow-[1px_1px_0px_rgba(0,0,0,1)] ${
                   selectedEvent.type === 'encontro' ? 'bg-indigo-50 text-indigo-900' :
                   selectedEvent.type === 'seminario' ? 'bg-amber-100 text-[#b45309]' :
                   selectedEvent.type === 'coleta' ? 'bg-red-100 text-red-900' :
@@ -194,63 +193,63 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
                 </span>
               </div>
 
-              <h1 className="text-xl sm:text-3xl font-black text-slate-950 leading-tight">
+              <h1 className="text-xl sm:text-3xl font-black text-slate-950 leading-tight text-center w-full" style={{ textAlign: 'center' }}>
                 {selectedEvent.title}
               </h1>
 
-              {/* Grid of coordinates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                <div className="border-2 border-black bg-slate-50 p-4 rounded-xl flex items-start gap-3 shadow-[2px_2px_0px_rgba(0,0,0,1)] text-left">
-                  <span className="text-lg mt-0.5">📅</span>
-                  <div>
-                    <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider">DATA AGENDADA</span>
-                    <span className="text-sm font-mono font-black text-slate-900">
+              {/* Grid of coordinates - Centered */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 w-full">
+                <div className="border-2 border-black bg-slate-50 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-[2px_2px_0px_rgba(0,0,0,1)]" style={{ textAlign: 'center' }}>
+                  <span className="text-lg">📅</span>
+                  <div className="text-center">
+                    <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider text-center" style={{ textAlign: 'center' }}>DATA AGENDADA</span>
+                    <span className="text-sm font-mono font-black text-slate-900 text-center" style={{ textAlign: 'center' }}>
                       {selectedEvent.date.split('-').reverse().join('/')}
                     </span>
                   </div>
                 </div>
 
-                <div className="border-2 border-black bg-slate-50 p-4 rounded-xl flex items-start gap-3 shadow-[2px_2px_0px_rgba(0,0,0,1)] text-left">
-                  <span className="text-lg mt-0.5">📍</span>
-                  <div>
-                    <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider">LOCALIZAÇÃO / MEIO</span>
-                    <span className="text-sm font-black text-slate-900 leading-tight block">
+                <div className="border-2 border-black bg-slate-50 p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-[2px_2px_0px_rgba(0,0,0,1)]" style={{ textAlign: 'center' }}>
+                  <span className="text-lg">📍</span>
+                  <div className="text-center">
+                    <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider text-center" style={{ textAlign: 'center' }}>LOCALIZAÇÃO / MEIO</span>
+                    <span className="text-sm font-black text-slate-900 leading-tight block text-center" style={{ textAlign: 'center' }}>
                       {selectedEvent.location || 'Não especificado'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Event Body Description */}
-              <div className="border-l-4 border-[#009E60] pl-4 py-1.5 text-justify space-y-3">
-                <p className="text-sm text-slate-700 leading-relaxed">
+              {/* Event Body Description - Centered */}
+              <div className="border-y-2 border-[#009E60] py-3 text-center space-y-3 w-full" style={{ textAlign: 'center' }}>
+                <p className="text-sm text-slate-700 leading-relaxed text-center w-full" style={{ textAlign: 'center' }}>
                   {selectedEvent.description}
                 </p>
-                <p className="text-sm text-slate-500 leading-relaxed">
+                <p className="text-sm text-slate-500 leading-relaxed text-center w-full" style={{ textAlign: 'center' }}>
                   Este comunicado oficial serve de notificação direta para os todos os órgãos provinciais de recolha bem como as lideranças e pontos focais institucionais para garantia absoluta da integridade estatística do projeto SIGDE- ONLINE.
                 </p>
               </div>
 
-              {/* Technical guidance panel */}
-              <div className="bg-[#e6f4ea] border-2 border-black rounded-xl p-4 text-sm text-slate-800 leading-relaxed shadow-[2px_2px_0px_rgba(0,0,0,1)] space-y-2 text-left">
-                <div className="flex items-center gap-2">
+              {/* Technical guidance panel - Centered */}
+              <div className="bg-[#e6f4ea] border-2 border-black rounded-xl p-4 text-sm text-slate-800 leading-relaxed shadow-[2px_2px_0px_rgba(0,0,0,1)] space-y-2 text-center w-full" style={{ textAlign: 'center' }}>
+                <div className="flex items-center justify-center gap-2 text-center" style={{ textAlign: 'center' }}>
                   <span className="text-base">💡</span>
-                  <span className="font-black text-xs uppercase tracking-wider">Orientação aos Integrantes do Sistema</span>
+                  <span className="font-black text-xs uppercase tracking-wider text-center" style={{ textAlign: 'center' }}>Orientação aos Integrantes do Sistema</span>
                 </div>
-                <p>
+                <p className="text-center w-full" style={{ textAlign: 'center' }}>
                   Sugerimos que as equipas confiram semanalmente o estado das fichas de resposta e rascunhos. Recomendamos assegurar reuniões de alinhamento com a nossa equipa central de validação para mitigar inconsistências estruturais.
                 </p>
               </div>
             </div>
 
-            {/* Official Signature block replica */}
-            <div className="border-t-2 border-dashed border-slate-200 pt-6 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-6 w-full">
-              <div className="space-y-1">
-                <span className="text-xs text-slate-400 font-extrabold uppercase tracking-wider block">Emitido por:</span>
-                <p className="text-sm font-black text-slate-900">
+            {/* Official Signature block replica - Centered */}
+            <div className="border-t-2 border-dashed border-slate-200 pt-6 flex flex-col items-center justify-center text-center gap-4 w-full" style={{ textAlign: 'center' }}>
+              <div className="space-y-1 text-center" style={{ textAlign: 'center' }}>
+                <span className="text-xs text-slate-400 font-extrabold uppercase tracking-wider block text-center" style={{ textAlign: 'center' }}>Emitido por:</span>
+                <p className="text-sm font-black text-slate-900 text-center" style={{ textAlign: 'center' }}>
                   {selectedEvent.createdBy || 'Direcção de Estatística'}
                 </p>
-                <p className="text-xs text-slate-500 leading-none uppercase tracking-wider font-semibold">
+                <p className="text-xs text-slate-500 leading-none uppercase tracking-wider font-semibold text-center" style={{ textAlign: 'center' }}>
                   Minedh • Moçambique
                 </p>
               </div>
@@ -288,7 +287,7 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
               <div className="flex items-center justify-center mb-1">
                 {/* National Emblem - Centered and responsive, background completely removed */}
                 <div 
-                  className="relative flex items-center justify-center w-[5.4rem] h-[5.4rem] sm:w-[6.6rem] sm:h-[6.6rem] bg-transparent cursor-pointer hover:scale-110 transition-transform"
+                  className="relative flex items-center justify-center w-[9rem] h-[9rem] sm:w-[11rem] sm:h-[11rem] bg-transparent cursor-pointer hover:scale-110 transition-transform"
                   onClick={() => setFullscreenImage(MOZAMBIQUE_EMBLEM)}
                   title="Clique para ver em tela cheia"
                 >
@@ -409,38 +408,6 @@ export default function CoverPage({ onEnterLogin, onEnterRegister, onViewProject
                     <span>Ver Projeto Teórico (SIGDE- ONLINE)</span>
                   </button>
                 )}
-
-                {/* Botão de Partilha de Link */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const sharedUrl = "https://ais-pre-7xbvfzreclzjcthc7dpbgt-64514099689.europe-west1.run.app";
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(sharedUrl);
-                    }
-                    setCopiedLink(true);
-                    setTimeout(() => setCopiedLink(false), 2500);
-                  }}
-                  className={`w-full sm:w-80 max-w-full inline-flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl border-2 transition-all cursor-pointer ${
-                    copiedLink
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-600 shadow-[2px_2px_0px_rgba(16,185,129,1)]'
-                      : 'bg-amber-50/80 hover:bg-amber-100/90 text-amber-950 border-amber-300 hover:border-amber-400 shadow-[2px_2px_0px_rgba(217,119,6,0.5)]'
-                  }`}
-                  title="Copiar link partilhado oficial para partilhar com equipas"
-                >
-                  {copiedLink ? (
-                    <>
-                      <Check className="h-4 w-4 text-emerald-600 animate-in zoom-in-75 duration-200" />
-                      <span>Link Oficial Copiado com Sucesso!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Link className="h-4 w-4 text-amber-700" />
-                      <span>Copiar Link Partilhado do Sistema</span>
-                      <Copy className="h-3.5 w-3.5 text-amber-600 ml-auto opacity-70" />
-                    </>
-                  )}
-                </button>
 
                 {/* Botão de Usuário de Teste */}
                 <TestUserList 

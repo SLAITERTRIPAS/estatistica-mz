@@ -27,7 +27,7 @@ import {
   X,
   ExternalLink
 } from 'lucide-react';
-import { SYSTEM_LOGO } from '../constants/assets';
+import { MOZAMBIQUE_EMBLEM } from '../constants/assets';
 import { useLanguage } from '../context/LanguageContext';
 import { ProyectoTeoricoContentRenderer } from './ProyectoTeoricoContentRenderer';
 
@@ -38,7 +38,7 @@ interface ProyectoTeoricoProps {
 
 export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
   const { t } = useLanguage();
-  const [isHumanVersion, setIsHumanVersion] = useState(true);
+  const [isHumanVersion, setIsHumanVersion] = useState(false);
   const [activeSection, setActiveSection] = useState<
     | 'capa'
     | 'indice'
@@ -86,6 +86,52 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
   const handlePrintOrDownload = () => {
     const printElement = document.getElementById('print-entire-document');
     
+    // Always trigger a direct file download of the complete document
+    if (printElement) {
+      try {
+        const fullDocHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SIGDE-ONLINE - Projeto Teórico Oficial 2026</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 20mm 15mm;
+    }
+    @page a3 {
+      size: A3 landscape;
+      margin: 15mm;
+    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 25px; color: #0f172a; line-height: 1.7; width: 100%; max-width: 100%; margin: 0 auto; background: #ffffff; box-sizing: border-box; }
+    p, article p, li { text-align: justify !important; text-justify: inter-word !important; }
+    h1, h2, h3 { color: #0284c7; margin-top: 24px; text-align: center; }
+    .page-break { page-break-after: always; break-after: page; margin-bottom: 30px; border-bottom: 2px solid #cbd5e1; padding-bottom: 20px; width: 100%; min-height: 270mm; box-sizing: border-box; }
+    table { width: 100% !important; border-collapse: collapse; margin: 20px 0; table-layout: auto; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: justify; }
+    th { background: #0f172a; color: white; text-align: center; }
+  </style>
+</head>
+<body>
+  ${printElement.innerHTML}
+</body>
+</html>`;
+
+        const blob = new Blob([fullDocHtml], { type: 'text/html;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `SIGDE_ONLINE_PROJETO_TEORICO_2026.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.warn('File download anchor fallback:', err);
+      }
+    }
+
+    // Try popup window or print fallback
     if (printElement) {
       try {
         const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
@@ -103,78 +149,20 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
                 <style>
                   @page {
                     size: A4 portrait;
-                    margin: 3cm 2cm 2cm 3cm;
-                    margin-top: 3cm;
-                    margin-right: 2cm;
-                    margin-bottom: 2cm;
-                    margin-left: 3cm;
+                    margin: 20mm 15mm;
                   }
-                  body { background: white !important; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; counter-reset: sectionPage 2; }
-                  #print-entire-document { display: block !important; width: 100% !important; max-width: 160mm !important; margin: 0 auto !important; padding: 0 !important; position: relative; background: transparent !important; }
+                  @page a3-landscape {
+                    size: A3 landscape;
+                    margin: 15mm;
+                  }
+                  body { background: white !important; margin: 0; padding: 0; width: 100% !important; max-width: 100% !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; counter-reset: sectionPage 2; }
+                  p, article p, li { text-align: justify !important; text-justify: inter-word !important; }
+                  #print-entire-document { display: block !important; width: 100% !important; max-width: 100% !important; margin: 0 auto !important; padding: 0 !important; position: relative; background: transparent !important; box-sizing: border-box !important; }
                   @media print {
-                    body { zoom: 0.95; counter-reset: sectionPage 2; }
+                    body { zoom: 1; counter-reset: sectionPage 2; width: 100% !important; max-width: 100% !important; }
+                    p, article p, li { text-align: justify !important; text-justify: inter-word !important; }
                     .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
-                    .cover-page { min-height: 240mm !important; justify-content: center !important; }
-                    .page-break { page-break-after: always; break-after: page; position: relative; width: 100%; min-height: 235mm; box-sizing: border-box; }
-                    .numbered-page { counter-increment: sectionPage; position: relative; padding-bottom: 12mm; }
-                    .numbered-page::after {
-                      content: "06/09/26, 20:03/Documento SIGDE - Página " counter(sectionPage);
-                      position: absolute;
-                      bottom: 0;
-                      left: 50%;
-                      transform: translateX(-50%);
-                      text-align: center;
-                      font-size: 8pt;
-                      font-family: monospace;
-                      color: #000000;
-                      white-space: nowrap;
-                    }
-                    .watermark-print { 
-                      position: fixed !important; 
-                      top: 50% !important; 
-                      left: 50% !important; 
-                      transform: translate(-50%, -50%) !important; 
-                      width: 416px !important;
-                      height: 416px !important;
-                      max-width: 85% !important;
-                      opacity: 0.22 !important; 
-                      z-index: 0 !important; 
-                      pointer-events: none !important; 
-                      display: flex !important; 
-                      align-items: center !important;
-                      justify-content: center !important;
-                    }
-                    .watermark-print img { 
-                      width: 100% !important;
-                      height: 100% !important;
-                      object-fit: contain !important;
-                      mix-blend-mode: multiply !important; 
-                      -webkit-print-color-adjust: exact !important; 
-                      print-color-adjust: exact !important; 
-                    }
-                    .page-watermark {
-                      position: absolute !important;
-                      top: 50% !important;
-                      left: 50% !important;
-                      transform: translate(-50%, -50%) !important;
-                      width: 384px !important;
-                      height: 384px !important;
-                      max-width: 85% !important;
-                      opacity: 0.22 !important;
-                      pointer-events: none !important;
-                      z-index: 0 !important;
-                      display: flex !important;
-                      align-items: center !important;
-                      justify-content: center !important;
-                    }
-                    .page-watermark img {
-                      width: 100% !important;
-                      height: 100% !important;
-                      object-fit: contain !important;
-                      mix-blend-mode: multiply !important;
-                      -webkit-print-color-adjust: exact !important;
-                      print-color-adjust: exact !important;
-                    }
+                    .page-break { page-break-after: always; break-after: page; position: relative; width: 100% !important; min-height: 270mm; box-sizing: border-box !important; }
                   }
                 </style>
               </head>
@@ -198,11 +186,11 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
       }
     }
     
-    // Fallback if popup blocked or element not found
-    if (window !== window.top) {
-      setShowIframeAlert(true);
-    } else {
+    // Fallback if popup blocked
+    try {
       window.print();
+    } catch (e) {
+      console.warn("window.print error:", e);
     }
   };
 
@@ -282,19 +270,17 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
             margin: 0 !important;
             overflow: visible !important;
           }
-          /* Ensure printable document fits and displays with ABNT width (160mm) */
+          /* Ensure printable document fits and matches reading mode preview identically */
           #print-entire-document {
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: relative;
             width: 100% !important;
-            max-width: 160mm !important;
+            max-width: 100% !important;
             margin: 0 auto !important;
             padding: 0 !important;
             background: transparent !important;
             color: #0b0f19 !important;
-            font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
           }
           .page-break {
             page-break-after: always;
@@ -323,51 +309,37 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
             color: #000000;
             white-space: nowrap;
           }
-          .watermark-print {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 416px !important;
-            height: 416px !important;
-            max-width: 85% !important;
-            opacity: 0.22 !important;
-            z-index: 0 !important;
-            pointer-events: none !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+          /* Text Font Size 12pt and Justification for Theoretical Project */
+          #print-entire-document,
+          #print-entire-document p,
+          #print-entire-document li,
+          #print-entire-document td,
+          .proyecto-teorico-body,
+          .proyecto-teorico-body p,
+          .proyecto-teorico-body li,
+          .proyecto-teorico-body td {
+            font-size: 12pt !important;
+            line-height: 1.6 !important;
+            text-align: justify !important;
+            text-justify: inter-word !important;
           }
-          .watermark-print img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: contain !important;
-            mix-blend-mode: multiply !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+          /* Titles and Subtitles: 14pt bold */
+          #print-entire-document h1,
+          #print-entire-document h2,
+          #print-entire-document h3,
+          #print-entire-document h4,
+          #print-entire-document h5,
+          .proyecto-teorico-body h1,
+          .proyecto-teorico-body h2,
+          .proyecto-teorico-body h3,
+          .proyecto-teorico-body h4,
+          .proyecto-teorico-body h5 {
+            font-size: 14pt !important;
+            font-weight: bold !important;
           }
-          .page-watermark {
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 384px !important;
-            height: 384px !important;
-            max-width: 85% !important;
-            opacity: 0.22 !important;
-            pointer-events: none !important;
-            z-index: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-          .page-watermark img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: contain !important;
-            mix-blend-mode: multiply !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+          /* Remove moving watermark in PDF/print mode */
+          .watermark-print, .page-watermark {
+            display: none !important;
           }
         }
       `}</style>
@@ -458,50 +430,13 @@ export default function ProyectoTeorico({ onBack }: ProyectoTeoricoProps = {}) {
         </div>
 
         {/* Content Viewer (Right) */}
-        <div className="lg:col-span-3 bg-white border-2 border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 relative min-h-[600px] overflow-hidden group/watermark">
-          
-          {/* Subtle logo background watermark - becomes more visible on hover */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] group-hover/watermark:opacity-[0.15] transition-opacity duration-500 pointer-events-none select-none">
-            <img src={SYSTEM_LOGO} alt="Logotipo do Sistema" className="w-full max-w-[430px] h-auto object-contain aspect-square mix-blend-multiply" />
-          </div>
-
-          {/* Version Switcher */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4 mb-5 no-print relative z-10">
-            <div className="space-y-0.5">
-              <span className="text-xs text-slate-400 font-mono uppercase tracking-widest block font-bold">Modo de Leitura do Documento</span>
-              <p className="text-sm text-slate-600  italic">
-                {isHumanVersion ? '❤️ Visualizando a Versão Mais Humana e Empática' : '🏛️ Visualizando a Versão Técnica e Metodológica'}
-              </p>
-            </div>
-            <div className="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200">
-              <button
-                onClick={() => setIsHumanVersion(false)}
-                className={`px-3 py-1.5 rounded-lg text-xs  font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  !isHumanVersion
-                    ? 'bg-slate-950 text-white shadow-xs font-black'
-                    : 'text-slate-500 hover:text-slate-850'
-                }`}
-              >
-                🏛️ Técnica Oficial
-              </button>
-              <button
-                onClick={() => setIsHumanVersion(true)}
-                className={`px-3 py-1.5 rounded-lg text-xs  font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  isHumanVersion
-                    ? 'bg-emerald-600 text-white shadow-xs font-black'
-                    : 'text-slate-500 hover:text-slate-850'
-                }`}
-              >
-                ❤️ Versão Mais Humana
-              </button>
-            </div>
-          </div>
+        <div className="lg:col-span-3 bg-white border-2 border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 relative min-h-[600px] overflow-hidden proyecto-teorico-body">
 
           <ProyectoTeoricoContentRenderer 
             activeSection={activeSection} 
             setActiveSection={setActiveSection} 
             t={t} 
-            isHumanVersion={isHumanVersion} 
+            isHumanVersion={false} 
           />
 
         </div>

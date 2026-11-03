@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 
@@ -28,7 +27,7 @@ function getGenAI(): GoogleGenAI | null {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   app.use(express.json({ limit: "10mb" }));
 
@@ -258,6 +257,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags markdown nem explicaçõ
 
   if (!isProduction) {
     try {
+      const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: "spa",
@@ -273,8 +273,10 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido (sem tags markdown nem explicaçõ
     serveStatic(app, distPath);
   }
 
+  console.log(`Attempting to start server on port ${PORT}...`);
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server successfully running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
   });
 }
 

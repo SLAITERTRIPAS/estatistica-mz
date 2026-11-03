@@ -196,23 +196,33 @@ body, html, #root {
 
 @page {
   size: A4 portrait;
-  /* Margens Padrão ABNT no Papel A4: Superior 3cm, Direita 2cm, Inferior 2cm, Esquerda (encadernação) 3cm */
-  margin: 3cm 2cm 2cm 3cm;
-  margin-top: 3cm;
-  margin-right: 2cm;
-  margin-bottom: 2cm;
-  margin-left: 3cm;
+  margin: 20mm 15mm 20mm 15mm;
   @bottom-center {
-    content: "06/09/26, 20:03/Documento SIGDE -";
+    content: "Documento Oficial SIGDE-ONLINE - República de Moçambique";
     font-size: 8pt;
     font-family: monospace;
     color: #000000;
   }
 }
 
-p, .text-justify, article p, .font-serif p {
-  text-align: justify;
-  text-justify: inter-word;
+@page a4-landscape {
+  size: A4 landscape;
+  margin: 15mm 10mm;
+}
+
+@page a3-portrait {
+  size: A3 portrait;
+  margin: 20mm 15mm;
+}
+
+@page a3-landscape {
+  size: A3 landscape;
+  margin: 15mm 10mm;
+}
+
+p, .text-justify, article p, .font-serif p, .prose p, .printable-document p {
+  text-align: justify !important;
+  text-justify: inter-word !important;
 }
 
 @media print {
@@ -220,32 +230,60 @@ p, .text-justify, article p, .font-serif p {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     counter-reset: sectionPage 2;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
+  /* Full 100% width occupation for document containers */
   .cover-page {
-    /* Dimensão da mancha gráfica útil A4 ABNT (210 - 50 = 160mm de largura útil) */
     width: 100% !important;
-    max-width: 160mm !important;
-    min-height: 240mm !important;
+    max-width: 100% !important;
+    min-height: 270mm !important;
     height: auto !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     page-break-after: always;
     margin: 0 auto;
     padding: 0 !important;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
   }
   
-  #print-entire-document {
-    /* Dimensão da mancha gráfica útil A4 ABNT: 160mm de largura x 247mm de altura */
+  #print-entire-document,
+  #stats-preview-wrapper,
+  .printable-document {
     width: 100% !important;
-    max-width: 160mm !important;
+    max-width: 100% !important;
     height: auto !important;
     margin: 0 auto;
     padding: 0 !important;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
     background: transparent !important;
+  }
+
+  #print-entire-document p,
+  #stats-preview-wrapper p,
+  .printable-document p,
+  .page-break p,
+  .numbered-page p,
+  article p,
+  li {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+  }
+
+  /* Paper size helper classes */
+  .page-a4 {
+    width: 100% !important;
+    min-height: 297mm !important;
+    box-sizing: border-box !important;
+  }
+
+  .page-a3 {
+    width: 100% !important;
+    min-height: 420mm !important;
+    box-sizing: border-box !important;
   }
 
   .page-break {
@@ -253,8 +291,8 @@ p, .text-justify, article p, .font-serif p {
     break-after: page;
     position: relative;
     box-sizing: border-box;
-    width: 100%;
-    min-height: 235mm;
+    width: 100% !important;
+    min-height: 260mm;
   }
 
   .numbered-page {
@@ -275,52 +313,20 @@ p, .text-justify, article p, .font-serif p {
     white-space: nowrap;
   }
 
-  .watermark-print {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 520px !important;
-    height: 520px !important;
-    max-width: 85% !important;
-    opacity: 0.22 !important;
-    z-index: 0 !important;
-    pointer-events: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  /* Remove moving/floating watermark emblem in print/PDF mode */
+  .watermark-print,
+  .page-watermark,
+  div[class*="watermark"] {
+    display: none !important;
   }
-  .watermark-print img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    mix-blend-mode: multiply !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
+}
 
-  .page-watermark {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 480px !important;
-    height: 480px !important;
-    max-width: 85% !important;
-    opacity: 0.22 !important;
-    pointer-events: none !important;
-    z-index: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-  .page-watermark img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    mix-blend-mode: multiply !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
+#master-upper-header img {
+  image-rendering: -webkit-optimize-contrast !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+  transform: translateZ(0) !important;
 }
 
