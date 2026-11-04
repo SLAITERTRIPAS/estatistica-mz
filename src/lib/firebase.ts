@@ -101,29 +101,33 @@ export async function syncAccountsWithFirestore() {
     const stored = localStorage.getItem('stat_registered_accounts');
     let localAccounts = stored ? JSON.parse(stored) : [];
 
-    if (firestoreAccounts.length > 0) {
+    // Clean and filter valid accounts only
+    const validFirestore = firestoreAccounts.filter((f) => f && typeof f.email === 'string' && f.email.trim().length > 0);
+    let validLocal = localAccounts.filter((l: any) => l && typeof l.email === 'string' && l.email.trim().length > 0);
+
+    if (validFirestore.length > 0) {
       // Merge: For each firestore account, update or add to local list
-      firestoreAccounts.forEach((fAcc) => {
-        const index = localAccounts.findIndex((lAcc: any) => lAcc.email.toLowerCase().trim() === fAcc.email.toLowerCase().trim());
+      validFirestore.forEach((fAcc) => {
+        const index = validLocal.findIndex((lAcc: any) => (lAcc.email || '').toLowerCase().trim() === (fAcc.email || '').toLowerCase().trim());
         if (index >= 0) {
-          localAccounts[index] = fAcc;
+          validLocal[index] = fAcc;
         } else {
-          localAccounts.push(fAcc);
+          validLocal.push(fAcc);
         }
       });
 
       // Also upload any local-only accounts to Firestore to sync both ways
-      for (const lAcc of localAccounts) {
+      for (const lAcc of validLocal) {
         if (lAcc.email && lAcc.password && lAcc.user) {
-          const existsInFirestore = firestoreAccounts.some((fAcc) => fAcc.email.toLowerCase().trim() === lAcc.email.toLowerCase().trim());
+          const existsInFirestore = validFirestore.some((fAcc) => (fAcc.email || '').toLowerCase().trim() === (lAcc.email || '').toLowerCase().trim());
           if (!existsInFirestore) {
             await saveAccountToFirestore(lAcc.email, lAcc.password, lAcc.user);
           }
         }
       }
 
-      localStorage.setItem('stat_registered_accounts', JSON.stringify(localAccounts));
-      console.log('Synchronized accounts with Firestore successfully. Total:', localAccounts.length);
+      localStorage.setItem('stat_registered_accounts', JSON.stringify(validLocal));
+      console.log('Synchronized accounts with Firestore successfully. Total:', validLocal.length);
     } else {
       // If Firestore is empty, let's seed it with whatever is in LocalStorage
       if (localAccounts.length > 0) {

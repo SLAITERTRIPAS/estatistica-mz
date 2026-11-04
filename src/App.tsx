@@ -23,13 +23,16 @@ import AIValidationAssistant from './components/AIValidationAssistant';
 import LogoCustomizerModal from './components/LogoCustomizerModal';
 import SystemSettings from './components/SystemSettings';
 import FullscreenImageModal from './components/FullscreenImageModal';
+import WeatherWidget from './components/WeatherWidget';
+import LimpezaGeralModal from './components/LimpezaGeralModal';
+import RectorPinSection from './components/RectorPinSection';
 import { resolveUserHeaderBranding } from './constants/institutionLogos';
 
 import * as XLSX from 'xlsx';
 import JSZip from 'jszip';
 import { 
   Building2, LogOut, FileText, Database, Activity, LayoutDashboard,
-  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check, Maximize2
+  LayoutGrid, Calendar, MessageSquare, PenTool, BarChart3, ArrowLeft, Folder, Users, GraduationCap, ChevronRight, ChevronLeft, Minus, X, Upload, MapPin, Atom, Sparkles, RotateCw, Link, Copy, Check, Maximize2, Trash2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -123,6 +126,7 @@ export default function App() {
   const [systemLogoUrl, setSystemLogoUrl] = useState<string>(() => localStorage.getItem('stat_system_logo') || SYSTEM_LOGO);
   const [registeredAccounts, setRegisteredAccounts] = useState<any[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [isLimpezaGeralOpen, setIsLimpezaGeralOpen] = useState(false);
 
   const userBranding = useMemo(() => {
     return resolveUserHeaderBranding(currentUser, institutions);
@@ -1120,7 +1124,7 @@ export default function App() {
             </div>
 
             {/* 2. Center: Date, Time & Weather Box (Real-Time) */}
-            <div className="hidden 2xl:flex flex-col items-center justify-center border border-[#fec107]/70 rounded-2xl px-5 py-1.5 bg-[#07071e] shadow-xl shrink-0 min-w-[320px]">
+            <div className="hidden xl:flex flex-col items-center justify-center border border-[#fec107]/70 rounded-2xl px-5 py-1.5 bg-[#07071e] shadow-xl shrink-0 min-w-[320px]">
               <div className="flex items-center gap-2 text-xs font-black tracking-widest text-[#fec107]">
                 <span>{getDayName(currentTime)}</span>
                 <span className="text-slate-500">|</span>
@@ -1128,10 +1132,14 @@ export default function App() {
               </div>
               <div className="w-full border-b border-[#fec107]/40 my-1"></div>
               <span className="text-xs font-black text-[#fec107] tracking-wider uppercase">{formatDate(currentTime)}</span>
-              <div className="mt-1 bg-[#12122b] border border-[#fec107]/30 rounded-lg px-2.5 py-0.5 text-[10px] font-bold text-[#fec107] tracking-tight flex items-center gap-1 shadow-inner">
-                <span>☀️</span>
-                <span>CLIMA: TETE / CAHORA-BASSA 28°C (MAX: 32°C / MIN: 22°C)</span>
+              <div className="mt-1 bg-[#12122b] border border-[#fec107]/30 rounded-lg px-2.5 py-0.5 text-[10px] font-bold text-[#fec107] tracking-tight flex items-center gap-1 shadow-inner hover:border-[#fec107]/70 transition-colors">
+                <WeatherWidget currentUser={currentUser} />
               </div>
+            </div>
+
+            {/* Compact Weather for medium/mobile viewports */}
+            <div className="xl:hidden flex items-center bg-[#12122b] border border-[#fec107]/40 rounded-xl px-2.5 py-1 text-[10px] font-bold text-[#fec107] shadow-md">
+              <WeatherWidget currentUser={currentUser} />
             </div>
 
             {/* 3. Right: User Profile & Action Buttons */}
@@ -1169,6 +1177,16 @@ export default function App() {
                   aria-label="Backup"
                 >
                   <Database className="h-5 w-5" />
+                </button>
+
+                {/* 3. Limpeza Geral */}
+                <button 
+                  onClick={() => setIsLimpezaGeralOpen(true)}
+                  title="Limpeza Geral do Sistema (Limpar Cache, Rascunhos e Otimizar)"
+                  className="p-2 hover:bg-amber-600 rounded-xl text-amber-300 border border-amber-500/80 bg-[#1e1402] hover:text-white transition-all cursor-pointer shadow-sm active:scale-90"
+                  aria-label="Limpeza Geral"
+                >
+                  <Trash2 className="h-5 w-5" />
                 </button>
 
                 {/* 3. Minimizar */}
@@ -2686,31 +2704,13 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* PIN Code & Validation Submit button */}
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center space-y-4">
-                          <div className="space-y-1.5">
-                            <label className="block text-xs font-bold text-slate-700 tracking-wider">Código Pin reitoral de validação (6 dígitos)</label>
-                            <input 
-                              type="password" 
-                              maxLength={6}
-                              placeholder="******" 
-                              className="text-center font-mono font-bold text-base border-2 border-black px-4 py-2 rounded-xl w-36 focus:outline-none focus:ring-0 bg-white"
-                            />
-                          </div>
-                          
-                          <button 
-                            onClick={() => {
-                              if (!processedSignature) {
-                                alert('Por favor, carregue e converta a sua assinatura antes de tentar assinar o termo.');
-                                return;
-                              }
-                              alert('Ótimo! Assinatura conversível aplicada judicialmente com autenticidade SHA-256 homologada com sucesso.');
-                            }}
-                            className="w-full bg-slate-900 text-white font-black text-xs py-3 rounded-xl hover:bg-slate-800 transition-all cursor-pointer shadow-sm disabled:opacity-50"
-                          >
-                            🔒 Chancelar & Assinar Oficialmente
-                          </button>
-                        </div>
+                        {/* PIN Code & Validation Submit button with User PIN Management */}
+                        <RectorPinSection
+                          currentUser={currentUser}
+                          processedSignature={processedSignature}
+                          onUserUpdated={(updated) => setCurrentUser(updated)}
+                          onNotify={(msg) => showHeaderToast(msg)}
+                        />
                       </div>
                     </div>
                   </div>
@@ -3218,7 +3218,11 @@ export default function App() {
                 )}
 
                 {sidebarTab === 'configuracoes' && (
-                  <SystemSettings currentLogo={systemLogoUrl} onUpdateLogo={handleUpdateSystemLogo} />
+                  <SystemSettings 
+                    currentLogo={systemLogoUrl} 
+                    onUpdateLogo={handleUpdateSystemLogo} 
+                    onOpenLimpezaGeral={() => setIsLimpezaGeralOpen(true)}
+                  />
                 )}
               </div>
             )}
@@ -3307,6 +3311,22 @@ export default function App() {
           currentUser={currentUser}
           institutions={institutions}
           onSaveLogo={handleSavePersonalizedLogo}
+        />
+      )}
+
+      {/* Modal de Limpeza Geral do Sistema */}
+      {currentUser && (
+        <LimpezaGeralModal
+          isOpen={isLimpezaGeralOpen}
+          onClose={() => setIsLimpezaGeralOpen(false)}
+          submissions={submissions}
+          onUpdateSubmissions={(newSubs) => {
+            setSubmissions(newSubs);
+            localStorage.setItem('stat_submissions', JSON.stringify(newSubs));
+          }}
+          currentUser={currentUser}
+          institutions={institutions}
+          onNotify={(msg) => showHeaderToast(msg)}
         />
       )}
 

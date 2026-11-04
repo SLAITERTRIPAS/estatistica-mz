@@ -26,6 +26,7 @@ export interface User {
   photoURL?: string;
   logoUrl?: string;
   signatureUrl?: string;
+  signaturePin?: string; // 6-digit PIN code for rector/user signature security
 }
 
 export interface Institution {

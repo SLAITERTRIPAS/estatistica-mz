@@ -8,7 +8,6 @@ interface TestUserListProps {
 
 export default function TestUserList({ accounts, onSelectAccount }: TestUserListProps) {
   const [isOpen, setIsOpen] = useState(false);
-  console.log('DEBUG: TestUserList rendering. Accounts received:', accounts ? accounts.length : 'null');
   
   const hierarchy = ['Nacional / Ministerial', 'Regional', 'Provincial', 'Institucional / IES'];
   

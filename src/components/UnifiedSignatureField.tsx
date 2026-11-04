@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, PenTool, Check, X, RefreshCw, Trash2, ShieldCheck, Download, Sparkles, User as UserIcon } from 'lucide-react';
-import { User } from '../types';
+import { Upload, PenTool, Check, X, RefreshCw, Trash2, ShieldCheck, ShieldAlert, AlertCircle, Download, Sparkles, User as UserIcon, Lock } from 'lucide-react';
+import { User, UserRole } from '../types';
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -12,6 +12,7 @@ interface UnifiedSignatureFieldProps {
   savedSignatureValue?: string | null;
   onApplySignature?: (signatureBase64: string | null, signerName: string) => void;
   readOnly?: boolean;
+  requiredRole?: UserRole | UserRole[];
 }
 
 // Helper to remove white paper background using canvas pixel manipulation
@@ -67,7 +68,8 @@ export default function UnifiedSignatureField({
   currentUser,
   savedSignatureValue,
   onApplySignature,
-  readOnly = false
+  readOnly = false,
+  requiredRole
 }: UnifiedSignatureFieldProps) {
   // Current signature applied to this field
   const [currentSignature, setCurrentSignature] = useState<string | null>(savedSignatureValue || null);
@@ -76,6 +78,12 @@ export default function UnifiedSignatureField({
   // Modal / drawer for uploading or creating a signature
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'upload' | 'draw'>('upload');
+
+  // Denied Access modal state for privilege validation
+  const [deniedModalInfo, setDeniedModalInfo] = useState<{
+    targetRoleName: string;
+    userRoleName: string;
+  } | null>(null);
   
   // System-stored signature of the logged-in user
   const [userSavedSystemSignature, setUserSavedSystemSignature] = useState<string | null>(null);
@@ -91,6 +99,135 @@ export default function UnifiedSignatureField({
   // Drawing canvas ref
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
+
+  // Helper to format role names in Portuguese
+  const getRoleLabel = (role?: UserRole | string): string => {
+    switch (role) {
+      case 'OrgaoMaximoIES': return 'Órgão Máximo da IES (Reitor / Director-Geral)';
+      case 'FocalPoint': return 'Ponto Focal Estatístico da IES';
+      case 'ies': return 'Representante da IES';
+      case 'ies_interno': return 'Gestor Interno da IES';
+      case 'RepresentanteProvincial':
+      case 'provincial': return 'Gabinete Provincial de Estatística';
+      case 'RepresentanteRegional':
+      case 'regional': return 'Gabinete Regional de Estatística';
+      case 'Ministerial':
+      case 'nacional':
+      case 'central': return 'Técnico Ministerial / DNES';
+      case 'sistema': return 'Administrador do Sistema';
+      default: return role || 'Sem Perfil Registado';
+    }
+  };
+
+  // Check if current user has privilege for this signature position
+  const checkPrivilege = (): { allowed: boolean; targetRoleName: string; userRoleName: string } => {
+    if (!currentUser) {
+      return { 
+        allowed: false, 
+        targetRoleName: 'Utilizador Autenticado', 
+        userRoleName: 'Visitante (Não Logado)' 
+      };
+    }
+
+    // Superusers & System Administrators override all position restrictions
+    if (currentUser.role === 'sistema' || currentUser.isOwner || currentUser.isProgrammer) {
+      return { allowed: true, targetRoleName: 'Administrador do Sistema', userRoleName: getRoleLabel(currentUser.role) };
+    }
+
+    const userRole = currentUser.role;
+    const tLower = (title || '').toLowerCase();
+    const descLower = (signerRoleDescription || '').toLowerCase();
+
+    let targetRoleName = 'Perfil Autorizado';
+    let allowed = false;
+
+    // 1. Explicit requiredRole prop if provided
+    if (requiredRole) {
+      const reqList = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+      if (reqList.includes(userRole)) {
+        allowed = true;
+      }
+      targetRoleName = reqList.map(r => getRoleLabel(r)).join(' / ');
+      return { allowed, targetRoleName, userRoleName: getRoleLabel(userRole) };
+    }
+
+    // 2. Title & Description keyword matching
+    if (
+      tLower.includes('reitor') || 
+      tLower.includes('chefe máximo') || 
+      tLower.includes('chefe maximo') || 
+      tLower.includes('órgão máximo') || 
+      tLower.includes('orgao maximo') || 
+      tLower.includes('director-geral') || 
+      tLower.includes('director geral') || 
+      tLower.includes('reitoria') ||
+      descLower.includes('órgão máximo') ||
+      descLower.includes('orgao maximo')
+    ) {
+      targetRoleName = 'Órgão Máximo da IES (Reitor / Director-Geral)';
+      allowed = userRole === 'OrgaoMaximoIES';
+    } 
+    else if (
+      tLower.includes('focal') || 
+      tLower.includes('elaborado por') || 
+      tLower.includes('ponto focal') || 
+      tLower.includes('equipa técnica') || 
+      tLower.includes('equipa tecnica') || 
+      tLower.includes('recolha') ||
+      descLower.includes('focal point') ||
+      descLower.includes('equipa técnica')
+    ) {
+      targetRoleName = 'Ponto Focal Estatístico / Responsável da IES';
+      allowed = ['FocalPoint', 'ies', 'ies_interno'].includes(userRole);
+    } 
+    else if (
+      tLower.includes('provincial') || 
+      tLower.includes('director provincial') || 
+      tLower.includes('diretor provincial') || 
+      tLower.includes('gabinete provincial')
+    ) {
+      targetRoleName = 'Gabinete Provincial de Estatística';
+      allowed = ['RepresentanteProvincial', 'provincial'].includes(userRole);
+    } 
+    else if (
+      tLower.includes('regional') || 
+      tLower.includes('coordenador regional') || 
+      tLower.includes('gabinete regional')
+    ) {
+      targetRoleName = 'Gabinete Regional de Estatística';
+      allowed = ['RepresentanteRegional', 'regional'].includes(userRole);
+    } 
+    else if (
+      tLower.includes('ministerial') || 
+      tLower.includes('dnes') || 
+      tLower.includes('ministério') || 
+      tLower.includes('ministerio') || 
+      tLower.includes('ministro')
+    ) {
+      targetRoleName = 'Técnico Ministerial / DNES';
+      allowed = ['Ministerial', 'nacional', 'central'].includes(userRole);
+    } 
+    else {
+      // Default fallback
+      targetRoleName = 'Membro Autorizado';
+      allowed = true;
+    }
+
+    return { allowed, targetRoleName, userRoleName: getRoleLabel(userRole) };
+  };
+
+  // Privilege Guard Wrapper for clicks
+  const withPrivilegeGuard = (action: () => void) => {
+    const privilege = checkPrivilege();
+    if (!privilege.allowed) {
+      setDeniedModalInfo({
+        targetRoleName: privilege.targetRoleName,
+        userRoleName: privilege.userRoleName
+      });
+      return;
+    }
+    action();
+  };
 
   // Check and sync logged-in user's system signature
   useEffect(() => {
@@ -317,10 +454,33 @@ export default function UnifiedSignatureField({
     }
   };
 
+  const userPrivilege = checkPrivilege();
+
   return (
-    <div className="flex flex-col items-center text-center p-3 relative group">
+    <div className="flex flex-col items-center text-center p-3 relative group rounded-2xl border border-transparent hover:border-slate-200 hover:bg-slate-50/50 transition-all">
       {/* Signature Render Box (Visualizes signature or manual rubric prompt) */}
-      <div className="w-full h-24 flex items-end justify-center pb-1 relative">
+      <div 
+        onClick={() => {
+          if (!readOnly) {
+            withPrivilegeGuard(() => {
+              if (userSavedSystemSignature) {
+                handleApplyUserSystemSignature();
+              } else {
+                setPreviewSignature(userSavedSystemSignature || null);
+                setIsOpenModal(true);
+              }
+            });
+          }
+        }}
+        className={`w-full h-24 flex items-end justify-center pb-1 relative cursor-pointer group/box border border-dashed ${
+          currentSignature 
+            ? 'border-emerald-300 bg-white/80' 
+            : userPrivilege.allowed 
+              ? 'border-slate-300 bg-slate-50/50 hover:bg-white hover:border-emerald-500' 
+              : 'border-rose-200 bg-rose-50/20 hover:bg-rose-50/50 hover:border-rose-400'
+        } rounded-xl transition-all p-2`}
+        title={userPrivilege.allowed ? "Clique para assinar / gerir assinatura" : `Restrito a: ${userPrivilege.targetRoleName}`}
+      >
         {currentSignature ? (
           <div className="relative flex flex-col items-center justify-end w-full h-full">
             <img 
@@ -330,10 +490,13 @@ export default function UnifiedSignatureField({
               style={{ mixBlendMode: 'multiply' }}
             />
             {!readOnly && (
-              <div className="absolute top-0 right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity no-print">
+              <div className="absolute top-0 right-0 flex gap-1 opacity-0 group-hover/box:opacity-100 transition-opacity no-print">
                 <button
                   type="button"
-                  onClick={() => setIsOpenModal(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    withPrivilegeGuard(() => setIsOpenModal(true));
+                  }}
                   title="Alterar Assinatura"
                   className="p-1 bg-white hover:bg-slate-100 border border-slate-300 rounded text-slate-700 text-[10px] shadow-xs cursor-pointer"
                 >
@@ -341,7 +504,10 @@ export default function UnifiedSignatureField({
                 </button>
                 <button
                   type="button"
-                  onClick={handleRemoveSignature}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    withPrivilegeGuard(handleRemoveSignature);
+                  }}
                   title="Remover Assinatura"
                   className="p-1 bg-white hover:bg-red-50 border border-red-200 rounded text-red-600 text-[10px] shadow-xs cursor-pointer"
                 >
@@ -351,31 +517,50 @@ export default function UnifiedSignatureField({
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400">
-            <PenTool className="h-5 w-5 mb-1 opacity-30 stroke-1" />
-            <p className="text-[10px] italic">Espaço para assinatura / rubrica oficial</p>
+          <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-1">
+            <PenTool className={`h-5 w-5 mb-0.5 stroke-1 ${userPrivilege.allowed ? 'text-emerald-600 opacity-70' : 'text-slate-400 opacity-40'}`} />
+            <p className="text-[10px] italic font-medium">
+              {userPrivilege.allowed 
+                ? 'Clique para assinar / carregar rubrica oficial' 
+                : `🔒 Assinatura do cargo: ${userPrivilege.targetRoleName}`}
+            </p>
           </div>
         )}
       </div>
 
       {/* Official Sign Line */}
-      <div className="border-t border-slate-900 mx-auto w-4/5 my-1"></div>
+      <div className="border-t border-slate-900 mx-auto w-4/5 my-1.5"></div>
 
       {/* Signer Title & Name */}
-      <p className="text-xs font-black uppercase mt-1 text-slate-800 tracking-tight">{title}</p>
+      <p className="text-xs font-black uppercase text-slate-800 tracking-tight">{title}</p>
       <p className="text-[11px] text-slate-600 italic">({signerName || 'Assinatura Autorizada'})</p>
       {signerRoleDescription && (
-        <span className="text-[9px] text-slate-400 block mt-0.5">{signerRoleDescription}</span>
+        <span className="text-[9px] text-slate-400 block mt-0.5 font-medium">{signerRoleDescription}</span>
       )}
+
+      {/* Position Access Badge */}
+      <div className="mt-1">
+        {userPrivilege.allowed ? (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+            Perfil Compatível
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+            <Lock className="w-2.5 h-2.5 text-rose-600" />
+            Cargo: {userPrivilege.targetRoleName}
+          </span>
+        )}
+      </div>
 
       {/* Interactive Controls (Hidden during print) */}
       {!readOnly && (
-        <div className="mt-3 flex flex-col gap-1.5 w-full max-w-[240px] no-print">
+        <div className="mt-2.5 flex flex-col gap-1.5 w-full max-w-[240px] no-print">
           {/* Option A: Apply existing signature of current user if found in system */}
           {userSavedSystemSignature ? (
             <button
               type="button"
-              onClick={handleApplyUserSystemSignature}
+              onClick={() => withPrivilegeGuard(handleApplyUserSystemSignature)}
               className={`w-full py-1.5 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer border ${
                 currentSignature === userSavedSystemSignature
                   ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
@@ -399,8 +584,10 @@ export default function UnifiedSignatureField({
           <button
             type="button"
             onClick={() => {
-              setPreviewSignature(userSavedSystemSignature || null);
-              setIsOpenModal(true);
+              withPrivilegeGuard(() => {
+                setPreviewSignature(userSavedSystemSignature || null);
+                setIsOpenModal(true);
+              });
             }}
             className="w-full py-1.5 px-2.5 rounded-lg text-[10px] font-bold text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 border border-slate-300 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
@@ -410,13 +597,65 @@ export default function UnifiedSignatureField({
         </div>
       )}
 
+      {/* POPUP MODAL: ESTE CARGO OU POSIÇÃO NÃO PERTENCE A SI */}
+      {deniedModalInfo && (
+        <div 
+          onClick={() => setDeniedModalInfo(null)}
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in no-print"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white border-2 border-rose-500 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center space-y-4 animate-scale-in"
+          >
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto border border-rose-200 shadow-inner">
+              <ShieldAlert className="w-6 h-6 stroke-[2.5]" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">
+                Acesso Restrito ao Campo de Assinatura
+              </h3>
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl shadow-inner">
+                <p className="text-sm font-black text-rose-800 uppercase tracking-tight">
+                  "Este cargo ou posição não pertence a si"
+                </p>
+              </div>
+            </div>
+
+            <div className="text-xs text-slate-700 space-y-2 text-left bg-slate-50 p-4 rounded-xl border border-slate-200 font-medium leading-relaxed shadow-xs">
+              <p>
+                • <strong>Campo Solicitado:</strong> <span className="text-slate-900 font-bold">{title}</span>
+              </p>
+              <p>
+                • <strong>Cargo do Campo:</strong> <span className="text-rose-700 font-bold">{deniedModalInfo.targetRoleName}</span>
+              </p>
+              <p>
+                • <strong>O Seu Perfil Atual:</strong> <span className="text-slate-800 font-bold">{deniedModalInfo.userRoleName}</span>
+              </p>
+            </div>
+
+            <p className="text-[11px] text-slate-500 italic">
+              Apenas utilizadores devidamente autenticados com o perfil do cargo correspondente têm permissão para assinar ou chancelar nesta posição oficial.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setDeniedModalInfo(null)}
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider py-3 rounded-xl cursor-pointer transition-all shadow-md active:scale-95"
+            >
+              Compreendido (Fechar)
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* MODAL: CARREGAR, GUARDAR E APLICAR ASSINATURA */}
       {isOpenModal && (
         <div 
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpenModal(false);
           }}
-          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto no-print"
         >
           <div className="bg-white rounded-2xl max-w-lg w-full text-left shadow-2xl border border-slate-200 overflow-hidden flex flex-col my-auto animate-fade-in">
             {/* Modal Header */}
@@ -610,7 +849,7 @@ export default function UnifiedSignatureField({
 
               <button
                 type="button"
-                onClick={handleSaveToSystemAndApply}
+                onClick={() => withPrivilegeGuard(handleSaveToSystemAndApply)}
                 disabled={!previewSignature || isProcessing || isSavingToSystem}
                 className="bg-slate-900 hover:bg-slate-800 text-white font-black px-5 py-2 rounded-xl text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50 active:scale-95"
               >

@@ -55,6 +55,7 @@ export default function ReportSignature({
               signerRoleDescription="Órgão Máximo • Homologação Legal"
               currentUser={resolvedCurrentUser}
               savedSignatureValue={localRectorSig}
+              requiredRole="OrgaoMaximoIES"
               onApplySignature={(sig, name) => {
                 setLocalRectorSig(sig);
                 if (onRectorSignatureChange) onRectorSignatureChange(sig, name);
@@ -68,6 +69,7 @@ export default function ReportSignature({
               signerRoleDescription="Equipa Técnica • Recolha de Dados"
               currentUser={resolvedCurrentUser}
               savedSignatureValue={localFocalSig}
+              requiredRole={['FocalPoint', 'ies', 'ies_interno']}
               onApplySignature={(sig, name) => {
                 setLocalFocalSig(sig);
                 if (onFocalPointSignatureChange) onFocalPointSignatureChange(sig, name);
